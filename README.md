@@ -1,6 +1,6 @@
 # Installation
 
-Mora needs to following dependencies:
+Amber needs to following dependencies:
 - Python version &geq; 3.5 and pip
 - scipy
 - diofant
@@ -14,8 +14,8 @@ Otherwise install it in your preferred way.
 2. Clone the repository:
 
 ```shell script
-git clone git@github.com:miroslav21/mora.git
-cd mora
+git@github.com:mmsbrggr/amber.git
+cd amber
 ```
 
 3. Create a virtual environment in the `.venv` directory:
@@ -40,40 +40,27 @@ Note: Use the the custom fork for the `diofant` until the version 0.11 is releas
 The reason for that is [this issue in diofant 0.10](https://github.com/diofant/diofant/issues/922).
 The custom fork contains a quick fix for this problem.
 
-# Run Mora
+# Run Amber
 
-Having all dependencies installed, you can run Mora for example like this:
+Having all dependencies installed, you can run Amber for example like this:
 ```shell script
-python ./run.py --benchmarks benchmarks/binomial --goal 1
-```
-If you run the command from the example above, Mora will compute the invariants
-for the first-order moments (expected values) of the program variables of the program contained in the
-file `benchmarks/binomial`.
-
-The general command for running Mora is:
-```shell script
-python ./run.py --benchmarks <list of files/file pattern> --goal <list of goals>
+python ./amber.py benchmarks/1d_rand_walk
 ```
 
 A more extensive help can be obtained by:
 ```shell script
-python ./run.py --help
+python ./amber.py --help
 ```
 
-# Writing your own Prob-solvable program
-A Prob-solvable program consist of initial assignments (one per line), a loop head `while true:`
+# Writing your own Prob-solvable loop
+A Prob-solvable loop consist of initial assignments (one per line), a loop head `while P > Q:`
 and a loop body consisting of multiple variable updates (also one per line).
-In the variable updates as well as the initial assignments, random variables can be used.
+The loop guard `P > Q` consists of two polynomials `P` and `Q` over the program variables.
 
 Initial assignments:
-- format:  var = value`
+- format:  `var = value
 - comment: not all variables have to have initial value specified
 - example: `x = 123`
-
-Random variables:
-- format:  `var = RV(distribution, parameter1, [parameter2, ...])`
-- comment: distributions supported at the moment are uniform and gauss 
-- example: `u = RV(uniform, 0, 1)`
 
 Variable updates:
 - format:  `var = option1 @ probability1; option2 @ probability2 ...`
@@ -88,11 +75,10 @@ An example program would be:
 
 ```
 # this is a comment
-x=0
-while true:
-    u = RV(uniform, 0, b)
-    g = RV(gauss, 0, 1)
-    x = x - u @ 1/2; x + u @ 1/2
-    y = y + x + g
+y = 0.01
+x = 5
+while x > 0:
+    y = 2*y
+    x = x + 200*y**2 @ 1/2; x - y**3
 ```
 More examples can be found in the `benchmarks` folder.
