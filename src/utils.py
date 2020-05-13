@@ -96,9 +96,9 @@ def get_signums_in_expression(expression: Expr) -> [Expr]:
     return signums
 
 
-def get_all_evar_powers(evar: Expr) -> [Number]:
+def get_all_monom_powers(monom: Expr) -> [Number]:
     """
-    Returns the degrees of all variables in a given evar in a list
+    Returns the degrees of all variables in a given monomial in a list
     """
-    evar = evar.as_poly(evar.free_symbols)
-    return list(evar.degree_list())
+    monom = monom.as_poly(monom.free_symbols)
+    return list(monom.degree_list())

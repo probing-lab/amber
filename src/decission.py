@@ -7,7 +7,7 @@ from mora.core import Program
 from mora.input import LOOP_GUARD_VAR
 from diofant import Expr, sympify, simplify, symbols
 
-from . import structure_store, bound_store
+from . import branch_store, bound_store
 from .initial_state_rule import InitialStateRule
 from .supermartingale_rule import SupermartingaleRule
 from .ranking_sm_rule import RankingSMRule
@@ -22,7 +22,7 @@ def decide_termination(program: Program):
     """
     The main function, gathering all the information, deciding on and calling a proof-rule
     """
-    structure_store.set_program(program)
+    branch_store.set_program(program)
     bound_store.set_program(program)
     lgc = prepare_loop_guard_change(program)
     me_pos = create_martingale_expression(program, False)

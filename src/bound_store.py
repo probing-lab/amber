@@ -1,12 +1,12 @@
 """
-This modules contains functions providing the bounds of given evars and polynomial of evars.
+This modules contains functions providing the bounds of given monomials and polynomial expressions.
 """
 
 from diofant import *
 from mora.core import Program
 from .utils import *
 from .asymptotics import *
-from . import structure_store
+from . import branch_store
 
 store = {}
 program = None
@@ -39,16 +39,16 @@ def set_program(p: Program):
 
 def get_bounds_of_expr(expression: Expr) -> Bounds:
     """
-    Computes the bounds of a polynomial over the program variables. It does so by substituting the bounds of the evars.
+    Computes the bounds of a polynomial over the program variables. It does so by substituting the bounds of the monomials.
     """
     expression = sympify(expression)
     variables = set(program.variables).difference({symbols('n')})
     expression = expression.as_poly(variables)
     expr_bounds = __initialize_bounds_for_expression(expression)
-    evars = get_monoms(expression)
-    for evar in evars:
-        evar_bounds = __get_bounds_of_evar(evar)
-        __replace_evar_in_expr_bounds(evar, evar_bounds, expression, expr_bounds)
+    monoms = get_monoms(expression)
+    for monom in monoms:
+        monom_bounds = __get_bounds_of_monom(monom)
+        __replace_monom_in_expr_bounds(monom, monom_bounds, expression, expr_bounds)
 
     upper_candidates = __split_on_signums(expr_bounds.upper.as_expr())
     lower_candidates = __split_on_signums(expr_bounds.lower.as_expr())
@@ -58,25 +58,25 @@ def get_bounds_of_expr(expression: Expr) -> Bounds:
     return expr_bounds
 
 
-def __replace_evar_in_expr_bounds(evar, evar_bounds: Bounds, expression: Poly, expr_bounds: Bounds):
+def __replace_monom_in_expr_bounds(monom, monom_bounds: Bounds, expression: Poly, expr_bounds: Bounds):
     """
-    Helper function which replaces a single evar with its bounds. Which bound to take depends on the coefficient
-    of the evar.
+    Helper function which replaces a single monomial with its bounds. Which bound to take depends on the coefficient
+    of the monomial.
     """
-    coeff = expression.coeff_monomial(evar)
+    coeff = expression.coeff_monomial(monom)
     if coeff > 0:
-        upper = evar_bounds.upper
-        lower = evar_bounds.lower
-        pos = evar_bounds.maybe_positive
-        neg = evar_bounds.maybe_negative
+        upper = monom_bounds.upper
+        lower = monom_bounds.lower
+        pos = monom_bounds.maybe_positive
+        neg = monom_bounds.maybe_negative
     else:
-        upper = evar_bounds.lower
-        lower = evar_bounds.upper
-        pos = evar_bounds.maybe_negative
-        neg = evar_bounds.maybe_positive
+        upper = monom_bounds.lower
+        lower = monom_bounds.upper
+        pos = monom_bounds.maybe_negative
+        neg = monom_bounds.maybe_positive
 
-    expr_bounds.upper = expr_bounds.upper.subs({evar: upper})
-    expr_bounds.lower = expr_bounds.lower.subs({evar: lower})
+    expr_bounds.upper = expr_bounds.upper.subs({monom: upper})
+    expr_bounds.lower = expr_bounds.lower.subs({monom: lower})
     # Rough estimate of whether the expression is positive/negative
     expr_bounds.maybe_positive = expr_bounds.maybe_positive or pos
     expr_bounds.maybe_negative = expr_bounds.maybe_negative or neg
@@ -100,70 +100,70 @@ def __initialize_bounds_for_expression(expression: Poly) -> Bounds:
     return bounds
 
 
-def __get_bounds_of_evar(evar: Expr) -> Bounds:
+def __get_bounds_of_monom(monom: Expr) -> Bounds:
     """
-    Computes the bounds of an evar in a lazy way
+    Computes the bounds of a monomial in a lazy way
     """
-    evar = sympify(evar).as_expr()
-    if evar not in store:
-        __compute_bounds_of_evar(evar)
-    return store[evar]
+    monom = sympify(monom).as_expr()
+    if monom not in store:
+        __compute_bounds_of_monom(monom)
+    return store[monom]
 
 
-def __compute_bounds_of_evar(evar: Expr):
-    print(f"Computing bounds for {evar.as_expr()}")
-    if len(evar.free_symbols) == 1 and get_all_evar_powers(evar)[0] > 2:
-        variable = evar.free_symbols.pop()
-        power = get_all_evar_powers(evar)[0]
+def __compute_bounds_of_monom(monom: Expr):
+    print(f"Computing bounds for {monom.as_expr()}")
+    if len(monom.free_symbols) == 1 and get_all_monom_powers(monom)[0] > 2:
+        variable = monom.free_symbols.pop()
+        power = get_all_monom_powers(monom)[0]
         if power % 2 == 0:
-            evar = variable ** 2
+            monom = variable ** 2
             power = int(power / 2)
         else:
-            evar = variable
+            monom = variable
             power = power
-        __compute_bounds_of_evar_power(evar, power)
+        __compute_bounds_of_monom_power(monom, power)
     else:
-        __compute_bounds_of_evar_structure(evar)
-    print(f"Found bounds for {evar.as_expr()}")
+        __compute_bounds_of_monom_recurrence(monom)
+    print(f"Found bounds for {monom.as_expr()}")
 
 
-def __compute_bounds_of_evar_power(evar: Expr, power: Number):
+def __compute_bounds_of_monom_power(monom: Expr, power: Number):
     """
-    Computes the bounds of evar**odd_power by just taking the bounds of evar and raising it to the given power.
-    This is only sound if the given power is odd or the evar is always positive
+    Computes the bounds of monom**odd_power by just taking the bounds of monom and raising it to the given power.
+    This is only sound if the given power is odd or the monom is always positive
     """
     n = symbols('n')
-    evar_bounds = __get_bounds_of_evar(evar)
-    upper_bound = simplify_asymptotically(evar_bounds.upper ** power, n)
-    lower_bound = simplify_asymptotically(evar_bounds.lower ** power, n)
+    monom_bounds = __get_bounds_of_monom(monom)
+    upper_bound = simplify_asymptotically(monom_bounds.upper ** power, n)
+    lower_bound = simplify_asymptotically(monom_bounds.lower ** power, n)
 
     bounds = Bounds()
-    bounds.expression = (evar ** power).as_expr()
+    bounds.expression = (monom ** power).as_expr()
     bounds.upper = upper_bound
     bounds.lower = lower_bound
-    bounds.maybe_positive = evar_bounds.maybe_positive
-    bounds.maybe_negative = evar_bounds.maybe_negative
+    bounds.maybe_positive = monom_bounds.maybe_positive
+    bounds.maybe_negative = monom_bounds.maybe_negative
 
     store[bounds.expression] = bounds
 
 
-def __compute_bounds_of_evar_structure(evar: Expr):
+def __compute_bounds_of_monom_recurrence(monom: Expr):
     """
-    Computes the bounds of an evar by representing it as a recurrence relation
+    Computes the bounds of a monomial by representing it as a recurrence relation
     """
     n = symbols('n')
-    structures = structure_store.get_structures_of_evar(evar)
-    inhom_parts_bounds = [get_bounds_of_expr(s.inhom_part) for s in structures]
-    initial_value = structure_store.get_initial_value_of_evar(evar)
-    maybe_pos, maybe_neg = __get_evar_polarity(evar, inhom_parts_bounds, initial_value)
+    branches = branch_store.get_branches_of_monom(monom)
+    inhom_parts_bounds = [get_bounds_of_expr(b.inhom_part) for b in branches]
+    initial_value = branch_store.get_initial_value_of_monom(monom)
+    maybe_pos, maybe_neg = __get_monom_polarity(monom, inhom_parts_bounds, initial_value)
 
     inhom_parts_bounds_lower = [b.lower.subs({n: n - 1}) for b in inhom_parts_bounds]
     inhom_parts_bounds_upper = [b.upper.subs({n: n - 1}) for b in inhom_parts_bounds]
 
     max_upper = get_eventual_bound(inhom_parts_bounds_upper, n, direction=Direction.PosInf)
     min_lower = get_eventual_bound(inhom_parts_bounds_lower, n, direction=Direction.NegInf)
-    min_rec = min([s.recurrence_constant for s in structures])
-    max_rec = max([s.recurrence_constant for s in structures])
+    min_rec = min([b.recurrence_constant for b in branches])
+    max_rec = max([b.recurrence_constant for b in branches])
     starting_values = __get_starting_values(maybe_pos, maybe_neg)
 
     upper_candidates = __compute_bound_candidates({min_rec, max_rec}, {max_upper}, starting_values)
@@ -172,15 +172,15 @@ def __compute_bounds_of_evar_structure(evar: Expr):
     max_upper_candidate = get_eventual_bound(upper_candidates, n, direction=Direction.PosInf)
     min_lower_candidate = get_eventual_bound(lower_candidates, n, direction=Direction.NegInf)
 
-    # If evar is negative upper bound cannot be larger than 0
+    # If monom is negative upper bound cannot be larger than 0
     if not maybe_pos:
         max_upper_candidate = get_eventual_bound([max_upper_candidate, sympify(0)], n, direction=Direction.NegInf)
-    # If evar is positive lower bound cannot be smaller than 0
+    # If monom is positive lower bound cannot be smaller than 0
     if not maybe_neg:
         min_lower_candidate = get_eventual_bound([min_lower_candidate, sympify(0)], n, direction=Direction.PosInf)
 
     bounds = Bounds()
-    bounds.expression = evar.as_expr()
+    bounds.expression = monom.as_expr()
     bounds.upper = max_upper_candidate.as_expr()
     bounds.lower = min_lower_candidate.as_expr()
     bounds.maybe_positive = maybe_pos
@@ -189,17 +189,17 @@ def __compute_bounds_of_evar_structure(evar: Expr):
     store[bounds.expression] = bounds
 
 
-def __get_evar_polarity(evar: Expr, inhom_parts_bounds: [Bounds], initial_value: Number) -> (bool, bool):
+def __get_monom_polarity(monom: Expr, inhom_parts_bounds: [Bounds], initial_value: Number) -> (bool, bool):
     """
-    Returns a rough but sound estimate of whether or not a given evar can be positive and negative
+    Returns a rough but sound estimate of whether or not a given monomial can be positive and negative
     """
-    # If all powers of the variables are even, the evar is only positive
-    powers = get_all_evar_powers(evar)
+    # If all powers of the variables are even, the monomial is only positive
+    powers = get_all_monom_powers(monom)
     all_powers_even = all([p % 2 == 0 for p in powers])
     if all_powers_even:
         return True, False
 
-    # Otherwise estimate evar polarity by polarity of initial condition and polarity of inhomogenous parts
+    # Otherwise estimate monom polarity by polarity of initial condition and polarity of inhomogenous parts
     initial_pos = sympify(initial_value) > 0
     if initial_pos.is_Relational:
         initial_pos = True
@@ -219,7 +219,7 @@ def __get_evar_polarity(evar: Expr, inhom_parts_bounds: [Bounds], initial_value:
 
 def __get_starting_values(maybe_pos: bool, maybe_neg: bool) -> [Expr]:
     """
-    Returns the possible values of an evar after which an evar is within a certain bound. This gets used
+    Returns the possible values of a monomial after which it is within a certain bound. This gets used
     to solve the recurrence relations for the bounds candidates.
     """
     values = []

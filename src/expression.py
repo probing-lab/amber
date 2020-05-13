@@ -12,9 +12,9 @@ Probability = Rational
 Case = (Expr, Probability)
 
 
-def get_branches_for_expression(expression: Expr, program: Program) -> [Case]:
+def get_cases_for_expression(expression: Expr, program: Program) -> [Case]:
     """
-    The main function computing all possible M_i from M_{i+1} together with the associated probabilities
+    The main function computing all possible expression_{i+1} together with the associated probabilities
     """
     result = [(expression, 1)]
 

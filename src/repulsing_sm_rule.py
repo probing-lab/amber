@@ -6,7 +6,7 @@ from diofant import symbols, limit, oo, sympify, simplify
 
 from . import bound_store
 from .asymptotics import get_eventual_bound, is_dominating_or_same, Answer
-from .expression import get_branches_for_expression
+from .expression import get_cases_for_expression
 from .invariance import is_invariant
 from .rule import Rule, Result, Witness
 
@@ -26,7 +26,7 @@ class RepulsingSMRule(Rule):
         if not is_invariant(self.martingale_expression, self.program):
             return result
 
-        branches = get_branches_for_expression(sympify(self.program.loop_guard), self.program)
+        branches = get_cases_for_expression(sympify(self.program.loop_guard), self.program)
         branches = [simplify(branch - sympify(self.program.loop_guard)) for branch, _ in branches]
         bounds = [bound_store.get_bounds_of_expr(case) for case in branches]
 
