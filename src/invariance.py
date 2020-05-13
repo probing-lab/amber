@@ -5,9 +5,9 @@ The methods are of course not complete in general.
 """
 from diofant import Expr, sympify, symbols
 from mora.core import Program
-from termination import bound_store
-from termination.utils import get_max_0, Answer
-from termination.asymptotics import is_dominating_or_same, Direction
+from . import bound_store
+from .utils import get_max_0, Answer
+from .asymptotics import is_dominating_or_same, Direction
 
 
 def is_invariant(expression: Expr, program: Program) -> bool:

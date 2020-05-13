@@ -4,8 +4,8 @@ because of the initial condition
 """
 from diofant import sympify
 
-from termination.rule import Rule, Result
-from termination.utils import Answer
+from .rule import Rule, Result
+from .utils import Answer
 
 
 class InitialStateRule(Rule):

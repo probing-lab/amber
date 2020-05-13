@@ -3,11 +3,11 @@ This module implements the ranking supermartingale proof rule
 """
 
 from diofant import symbols, limit, oo, sympify
-from termination import bound_store
-from termination.invariance import is_invariant
-from termination.rule import Rule, Result, Witness
-from termination.utils import get_max_0, Answer
-from termination.asymptotics import is_dominating_or_same, Direction
+from . import bound_store
+from .invariance import is_invariant
+from .rule import Rule, Result, Witness
+from .utils import get_max_0, Answer
+from .asymptotics import is_dominating_or_same, Direction
 
 
 class RankingSMRule(Rule):

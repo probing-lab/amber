@@ -19,7 +19,7 @@ The structure of EVARs are computed just in time and stored so they can be reuse
 
 from diofant import *
 from mora.core import Program
-from termination.expression import get_branches_for_expression, get_initial_value_for_expression
+from .expression import get_branches_for_expression, get_initial_value_for_expression
 
 
 class Structure:

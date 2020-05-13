@@ -1,4 +1,4 @@
-from termination.utils import Answer
+from .utils import Answer
 
 
 class Result:

@@ -2,16 +2,16 @@
 This module implements the general proof rule for AST
 """
 
-from diofant import limit, symbols, oo, sympify, simplify
+from diofant import limit, symbols, oo, sympify
 
-from termination import bound_store
-from termination.asymptotics import is_dominating_or_same, Direction, Answer
-from termination.expression import get_branches_for_expression
-from termination.invariance import is_invariant
-from termination.rule import Rule, Result, Witness
+from . import bound_store
+from .asymptotics import is_dominating_or_same, Direction, Answer
+from .expression import get_branches_for_expression
+from .invariance import is_invariant
+from .rule import Rule, Result, Witness
 
 
-class MartingaleRule(Rule):
+class SupermartingaleRule(Rule):
     def is_applicable(self):
         n = symbols('n')
         lim = limit(self.loop_guard_change, n, oo)
@@ -26,16 +26,16 @@ class MartingaleRule(Rule):
             return result
 
         # Eventually one branch of LG_{i+1} - LG_i has to decrease more or equal than constant
-        cases = get_branches_for_expression(sympify(self.program.loop_guard), self.program)
-        for case, prob in cases:
-            bounds = bound_store.get_bounds_of_expr(case - sympify(self.program.loop_guard))
+        branches = get_branches_for_expression(sympify(self.program.loop_guard), self.program)
+        for branch, prob in branches:
+            bounds = bound_store.get_bounds_of_expr(branch - sympify(self.program.loop_guard))
             n = symbols('n')
             if is_dominating_or_same(bounds.upper, sympify(-1), n, direction=Direction.NegInf):
                 result.AST = Answer.TRUE
                 result.add_witness(ASTWitness(
                     self.program.loop_guard,
                     self.martingale_expression,
-                    case,
+                    branch,
                     bounds.upper,
                     prob
                 ))

@@ -1,6 +1,5 @@
 from mora.input import InputParser
-import termination.structure_store as structure_store
-import termination.bound_store as bound_store
+from . import structure_store, bound_store
 
 
 def bounds(benchmark, expression):

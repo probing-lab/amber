@@ -3,8 +3,13 @@ from datetime import datetime
 from diofant import latex
 from .utils import log
 
+OUTPUT = False
+
 
 def output_results(prog, computation_time, output_format=" "):
+    if not OUTPUT:
+        return
+
     program_name = prog.name
     goal = prog.goals
     timestamp = datetime.now().strftime('%y%m%d-%H%M%S%f')[:-4]

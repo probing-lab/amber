@@ -1,6 +1,7 @@
 
-x = 0
-c = 1
-while true:
-    c = c @ p; 0 @ 1-p
-    x = x + c @ 1
+# Models a geometric distribution
+# The program is PAST
+
+stop = 0
+while stop < 1:
+    stop = 1 @ 1/2; 0

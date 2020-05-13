@@ -4,11 +4,11 @@ This module implements the repulsing supermartingale proof rule
 
 from diofant import symbols, limit, oo, sympify, simplify
 
-from termination import bound_store
-from termination.asymptotics import get_eventual_bound, is_dominating_or_same, Answer
-from termination.expression import get_branches_for_expression
-from termination.invariance import is_invariant
-from termination.rule import Rule, Result, Witness
+from . import bound_store
+from .asymptotics import get_eventual_bound, is_dominating_or_same, Answer
+from .expression import get_branches_for_expression
+from .invariance import is_invariant
+from .rule import Rule, Result, Witness
 
 
 class RepulsingSMRule(Rule):
@@ -26,16 +26,16 @@ class RepulsingSMRule(Rule):
         if not is_invariant(self.martingale_expression, self.program):
             return result
 
-        cases = get_branches_for_expression(sympify(self.program.loop_guard), self.program)
-        cases = [simplify(case - sympify(self.program.loop_guard)) for case, _ in cases]
-        cases_bounds = [bound_store.get_bounds_of_expr(case) for case in cases]
+        branches = get_branches_for_expression(sympify(self.program.loop_guard), self.program)
+        branches = [simplify(branch - sympify(self.program.loop_guard)) for branch, _ in branches]
+        bounds = [bound_store.get_bounds_of_expr(case) for case in branches]
 
         # Make sure that there is always a positive probability of having a next iteration
-        if all([cb.maybe_negative for cb in cases_bounds]):
+        if all([cb.maybe_negative for cb in bounds]):
             return result
 
         n = symbols('n')
-        cs = get_eventual_bound([cb.absolute_upper for cb in cases_bounds], n)
+        cs = get_eventual_bound([cb.absolute_upper for cb in bounds], n)
         epsilons = simplify(bound_store.get_bounds_of_expr(self.martingale_expression).upper * -1)
 
         # The epsilons have to grow more or equal to the cs

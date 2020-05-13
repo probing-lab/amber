@@ -4,9 +4,9 @@ This modules contains functions providing the bounds of given evars and polynomi
 
 from diofant import *
 from mora.core import Program
-from termination.utils import *
-from termination.asymptotics import *
-import termination.structure_store as structure_store
+from .utils import *
+from .asymptotics import *
+from . import structure_store
 
 store = {}
 program = None

@@ -5,7 +5,7 @@ This module contains implementations common to all termination proof rules
 from abc import ABC, abstractmethod
 from diofant import Expr
 from mora.core import Program
-from termination.result import Result
+from .result import Result
 
 
 class Rule(ABC):

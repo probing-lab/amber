@@ -9,7 +9,7 @@ from diofant import Expr, sympify, simplify, symbols
 
 from . import structure_store, bound_store
 from .initial_state_rule import InitialStateRule
-from .martingale_rule import MartingaleRule
+from .supermartingale_rule import SupermartingaleRule
 from .ranking_sm_rule import RankingSMRule
 from .repulsing_sm_rule import RepulsingSMRule
 from .rule import Result
@@ -31,7 +31,7 @@ def decide_termination(program: Program):
     rules = [
         InitialStateRule(lgc, me_pos, program),
         RankingSMRule(lgc, me_pos, program),
-        MartingaleRule(lgc, me_pos, program),
+        SupermartingaleRule(lgc, me_pos, program),
         RepulsingSMRule(lgc, me_neg, program)
     ]
     result = Result()

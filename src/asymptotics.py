@@ -1,5 +1,5 @@
 from diofant import *
-from termination.utils import *
+from .utils import *
 from enum import Enum, auto
 
 
