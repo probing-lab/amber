@@ -7,7 +7,7 @@ For the command line arguments run the script with "--help".
 import glob
 from argparse import ArgumentParser
 
-from mora.mora import mora
+from mora.mora import mora, MoraException
 from src import decide_termination
 from src.bounds import bounds
 
@@ -50,8 +50,11 @@ def main():
         if args.bounds:
             bounds(benchmark, args.bounds)
         else:
-            program = mora(benchmark, goal=1)
-            decide_termination(program)
+            try:
+                program = mora(benchmark, goal=1)
+                decide_termination(program)
+            except MoraException as exception:
+                print("Something went wrong with Mora", exception)
 
 
 if __name__ == "__main__":

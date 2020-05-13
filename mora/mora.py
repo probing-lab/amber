@@ -10,6 +10,10 @@ from .utils import get_expected_change
 from timeit import default_timer as timer
 
 
+class MoraException(Exception):
+    pass
+
+
 def mora(source: str, goal: int = 1, output_format: str = ""):
     try:
         start = timer()
@@ -29,5 +33,4 @@ def mora(source: str, goal: int = 1, output_format: str = ""):
         return program
 
     except Exception as exception:
-        print("Execution failed!")
-        print(exception)
+        raise MoraException(exception)
