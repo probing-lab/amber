@@ -2,6 +2,8 @@ import math
 from enum import Enum, auto
 from diofant import *
 
+from mora.core import Program
+
 
 class Answer(Enum):
     FALSE = auto()
@@ -102,3 +104,11 @@ def get_all_monom_powers(monom: Expr) -> [Number]:
     """
     monom = monom.as_poly(monom.free_symbols)
     return list(monom.degree_list())
+
+
+def monom_is_deterministic(monom: Expr, program: Program):
+    """
+    Returns true iff a given monomial is deterministic, that means all variables in the monomial are deterministic
+    """
+    variables_deterministic = [not program.updates[m].is_probabilistic for m in monom.free_symbols]
+    return all(variables_deterministic)

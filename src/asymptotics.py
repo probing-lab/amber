@@ -68,6 +68,7 @@ def simplify_asymptotically(expression: Expr, n: Symbol):
     if n not in expression.free_symbols:
         return expression
 
+    expression = simplify(expression)
     limit_exp = limit(expression, n, oo)
     if limit_exp == 0:
         return expression

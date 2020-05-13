@@ -1,11 +1,9 @@
-from mora.input import InputParser
+from mora.mora import mora
 from . import branch_store, bound_store
 
 
 def bounds(benchmark, expression):
-    ip = InputParser()
-    ip.set_source(benchmark)
-    program = ip.parse_source()
+    program = mora(benchmark, goal=1)
     branch_store.set_program(program)
     bound_store.set_program(program)
     bounds = bound_store.get_bounds_of_expr(expression)

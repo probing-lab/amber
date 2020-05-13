@@ -111,8 +111,11 @@ def __get_bounds_of_monom(monom: Expr) -> Bounds:
 
 
 def __compute_bounds_of_monom(monom: Expr):
+    global program
     print(f"Computing bounds for {monom.as_expr()}")
-    if len(monom.free_symbols) == 1 and get_all_monom_powers(monom)[0] > 2:
+    if monom_is_deterministic(monom, program):
+        __compute_bounds_of_deterministic_monom(monom)
+    elif len(monom.free_symbols) == 1 and get_all_monom_powers(monom)[0] > 2:
         variable = monom.free_symbols.pop()
         power = get_all_monom_powers(monom)[0]
         if power % 2 == 0:
@@ -125,6 +128,33 @@ def __compute_bounds_of_monom(monom: Expr):
     else:
         __compute_bounds_of_monom_recurrence(monom)
     print(f"Found bounds for {monom.as_expr()}")
+
+
+def __compute_bounds_of_deterministic_monom(monom):
+    """
+    Computes the bounds of a deterministic monomial by replacing its variables by their first moments, which are
+    their exact closed-form representations
+    """
+    global program
+    bound = monom
+    for variable in monom.free_symbols:
+        moment = program.moments[str(variable) + "^1"]
+        bound = bound.subs({variable: moment})
+
+    n_int = symbols('n', integer=True)
+    n = symbols('n')
+    bound = bound.subs({n_int: n})
+    pos, neg = get_polarity(bound, n)
+    bound = simplify_asymptotically(bound, n)
+
+    bounds = Bounds()
+    bounds.expression = monom
+    bounds.upper = bound
+    bounds.lower = bound
+    bounds.maybe_positive = pos
+    bounds.maybe_negative = neg
+
+    store[bounds.expression] = bounds
 
 
 def __compute_bounds_of_monom_power(monom: Expr, power: Number):
