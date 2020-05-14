@@ -1,0 +1,7 @@
+# A non-terminating program with polynomial behavior
+
+x = 10
+y = 0
+while x > 0:
+    y = y + 1
+    x = x + y**5 - 1 @ 1/2; x - 10000*y**2

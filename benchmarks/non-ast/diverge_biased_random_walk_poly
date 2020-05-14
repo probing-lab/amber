@@ -1,0 +1,7 @@
+# biased 1d random walk with polynomial behavior
+
+x = 10
+y = 0
+while x > 0:
+    y = y + 1
+    x = x + (y**2 - y) @ 51/100; x - (y**2 - y)

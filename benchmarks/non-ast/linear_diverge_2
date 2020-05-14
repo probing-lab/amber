@@ -1,0 +1,7 @@
+# A non-terminating program with linear behavior
+
+x = 10
+y = 10
+while x > 0:
+    y = y + 1  @ 1/2; y + 2 @ 1/2; y + 3
+    x = x + y - 3 @ 1/2; x - 1/2*y
