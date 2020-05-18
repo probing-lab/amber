@@ -288,7 +288,8 @@ def __compute_bound_candidate(c: Number, inhom_part: Expr, starting_value: Expr)
     """
     f = Function('f')
     n = symbols('n')
-    solution = rsolve(f(n) - c*f(n-1) - inhom_part, f(n), {f(0): starting_value})
+    solution = rsolve(f(n) - c*f(n-1) - inhom_part, f(n), init={f(0): starting_value})
+    solution = solution[0][f](n)
     return solution
 
 

@@ -1,7 +1,7 @@
 # Installation
 
 Amber needs to following dependencies:
-- Python version &geq; 3.5 and pip
+- Python version &geq; 3.7 and pip
 - scipy
 - diofant
 - lark-parser
@@ -32,7 +32,7 @@ source .venv/bin/activate
 5. Install the required dependencies with pip:
 ```shell script
 pip install scipy
-pip install -e git+git@github.com:mmsbrggr/diofant.git#egg=diofant
+pip install diofant
 pip install lark-parser
 ```
 

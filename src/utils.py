@@ -40,10 +40,12 @@ def unique_symbol(s: str, **args):
 
 def get_max_0(expression: Expr, n: Symbol):
     """
-    Returns the maximum 0 of a given expression or 0.
+    Returns the maximum positive 0 of a given expression or 0 if it does not exist
     """
     try:
         exp_zeros = solve(expression, n)
+        if exp_zeros == [{}]:
+            return 0
         exp_zeros = [z[n] for z in exp_zeros if z[n].is_real]
     except NotImplementedError:
         exp_zeros = []
