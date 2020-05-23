@@ -1,4 +1,14 @@
-# Installation
+<p align="center">
+  <img src="https://github.com/mmsbrggr/amber/blob/master/logo.svg">
+</p>
+
+
+# Amber
+
+Amber is an academic prototype to decide the probabilistic termination behavior of Prob-solvalble loops.
+
+
+## Installation
 
 Amber needs to following dependencies:
 - Python version &geq; 3.7 and pip
@@ -40,7 +50,7 @@ Note: Use the the custom fork for the `diofant` until the version 0.11 is releas
 The reason for that is [this issue in diofant 0.10](https://github.com/diofant/diofant/issues/922).
 The custom fork contains a quick fix for this problem.
 
-# Run Amber
+## Run Amber
 
 Having all dependencies installed, you can run Amber for example like this:
 ```shell script
@@ -52,7 +62,7 @@ A more extensive help can be obtained by:
 python ./amber.py --help
 ```
 
-# Writing your own Prob-solvable loop
+## Writing your own Prob-solvable loop
 A Prob-solvable loop consist of initial assignments (one per line), a loop head `while P > Q:`
 and a loop body consisting of multiple variable updates (also one per line).
 The loop guard `P > Q` consists of two polynomials `P` and `Q` over the program variables.
