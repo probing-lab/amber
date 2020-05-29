@@ -3,7 +3,7 @@ from scipy.stats import norm
 from math import sqrt
 import re
 
-LOG = True
+LOG = False
 
 
 class Update:
