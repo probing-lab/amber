@@ -1,7 +1,0 @@
-# biased 1d random walk with exponential behavior
-
-x = 10
-y = 1
-while x > 0:
-    y = 2*y
-    x = x + y @ 51/100; x - y

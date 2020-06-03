@@ -1,7 +1,0 @@
-# biased 1d random walk with linear behavior
-
-x = 10
-y = 0
-while x > 0:
-    y = y + 1
-    x = x + (2*y + 6) @ 51/100; x - (2*y + 6)

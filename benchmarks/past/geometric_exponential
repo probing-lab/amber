@@ -1,0 +1,9 @@
+# x and y both go through powers of 2.
+# In every iteration there is a probability of 1/3 of terminating imediatelly.
+# Therefore, the expected termination time is 3.
+
+x = 2
+y = 1
+while x > 0:
+    y = 2*y
+    x = x - y @ 1/3; x + y

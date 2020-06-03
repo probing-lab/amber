@@ -38,6 +38,12 @@ class RepulsingSMRule(Rule):
         cs = get_eventual_bound([cb.absolute_upper for cb in bounds], n)
         epsilons = simplify(bound_store.get_bounds_of_expr(self.martingale_expression).upper * -1)
 
+        # Epsilons and cs have to be bound by a constant
+        if not is_dominating_or_same(sympify(1), epsilons, n):
+            return result
+        if not is_dominating_or_same(sympify(1), cs, n):
+            return result
+
         # The epsilons have to grow more or equal to the cs
         if not is_dominating_or_same(sympify(0), epsilons, n) and is_dominating_or_same(epsilons, cs, n):
             result.PAST = Answer.FALSE
