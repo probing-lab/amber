@@ -1,4 +1,4 @@
-# The program models the coupon collector problem for N=2 coupons
+# The program models the coupon collector problem for N=4 coupons
 # In every iteration the collector gets one of the N different coupons
 # the loop stops when th collector has collected at least one coupon of every kind.
 
