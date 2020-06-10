@@ -3,21 +3,30 @@ from random import random
 
 
 def run_program():
-    n = 0
-    x = 0
-    y = 0
-    while x + 1 > 0:
-        n += 1
-        y = y + 1
+    i = 0
+    x = 10
+    while x > 0:
+        i = i + 1
         if random() < 2/3:
-            x = x + 2*y**3
+            x = x + i
         else:
-            x = x - 10*y**2
-        if n % 100 == 0:
-            print(f'x = {x}')
+            x = x - i
+        if x > 1000000000000:
+            return False
 
-    return n
+    return True
 
 
-n = run_program()
-print(n)
+count_term = 0
+count_non_term = 0
+for n in range(100):
+    term = run_program()
+    if term:
+        count_term += 1
+    else:
+        count_non_term += 1
+    print(f'{n} / {100}')
+
+
+print(f'# Termination: {count_term}')
+print(f'# Non-Termination: {count_non_term}')
