@@ -10,7 +10,7 @@ Amber is an academic prototype to decide the probabilistic termination behavior 
 
 ## Installation
 
-Amber needs to following dependencies:
+Amber needs the following dependencies:
 - Python version &geq; 3.7 and pip
 - scipy
 - diofant
@@ -18,7 +18,7 @@ Amber needs to following dependencies:
 
 To install these you can do the following steps.
 
-1. Make sure you have python (version &geq; 3.5) and pip installed on your system.
+1. Make sure you have python (version &geq; 3.7) and pip installed on your system.
 Otherwise install it in your preferred way.
 
 2. Clone the repository:
@@ -41,14 +41,9 @@ source .venv/bin/activate
 
 5. Install the required dependencies with pip:
 ```shell script
-pip install scipy
-pip install diofant
-pip install lark-parser
+pip install -r requirements.txt
 ```
 
-Note: Use the the custom fork for the `diofant` until the version 0.11 is released.
-The reason for that is [this issue in diofant 0.10](https://github.com/diofant/diofant/issues/922).
-The custom fork contains a quick fix for this problem.
 
 ## Run Amber
 
