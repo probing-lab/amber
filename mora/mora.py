@@ -15,7 +15,7 @@ class MoraException(Exception):
 
 
 def mora(source: str, goal: int = 1, output_format: str = ""):
-    #try:
+    try:
         start = timer()
         parser = InputParser()
         parser.set_source(source)
@@ -32,5 +32,5 @@ def mora(source: str, goal: int = 1, output_format: str = ""):
 
         return program
 
-    #except Exception as exception:
-    #    raise MoraException(exception)
+    except Exception as exception:
+        raise MoraException(exception)
