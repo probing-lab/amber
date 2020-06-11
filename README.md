@@ -7,8 +7,37 @@
 
 Amber is an academic prototype to decide the probabilistic termination behavior of Prob-solvalble loops.
 
+## Run Amber with Docker
 
-## Installation
+The repository comes with a Dockerfile. 
+This is the easiest way to run Amber.
+
+1. Make sure Docker is installed on your local machine ([docs.docker.com/get-docker/](https://docs.docker.com/get-docker/)).
+
+2. Run the following commands to clone the repository, build the docker image and run the container:
+
+```shell script
+git clone git@github.com:mmsbrggr/amber.git
+cd amber
+docker build -t amber .
+docker run -i --name amber1 amber &
+```
+
+Now you can run amber on a given benchmark file with the following command:
+
+```shell script
+docker exec -t amber1 ./amber benchmarks/past/2d_bounded_random_walk
+```
+
+The docker container can be stopped again with executing the following:
+
+```shell script
+docker container stop amber1
+docker container rm amber1
+```
+
+
+## Local Installation
 
 Amber needs the following dependencies:
 - Python version &geq; 3.7 and pip
@@ -24,7 +53,7 @@ Otherwise install it in your preferred way.
 2. Clone the repository:
 
 ```shell script
-git@github.com:mmsbrggr/amber.git
+git clone git@github.com:mmsbrggr/amber.git
 cd amber
 ```
 
@@ -49,7 +78,7 @@ pip install -r requirements.txt
 
 Having all dependencies installed, you can run Amber for example like this:
 ```shell script
-python ./amber.py benchmarks/1d_rand_walk
+python ./amber.py benchmarks/past/2d_bounded_random_walk
 ```
 
 A more extensive help can be obtained by:
