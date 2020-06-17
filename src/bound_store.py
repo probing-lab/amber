@@ -64,6 +64,10 @@ def __replace_monom_in_expr_bounds(monom, monom_bounds: Bounds, expression: Poly
     of the monomial.
     """
     coeff = expression.coeff_monomial(monom)
+    # n can be in coefficient. Therefore check whether the coefficient eventually stays positive.
+    if len(coeff.free_symbols) > 0:
+        coeff = limit(coeff, symbols('n'), oo)
+
     if coeff > 0:
         upper = monom_bounds.upper
         lower = monom_bounds.lower
