@@ -200,8 +200,16 @@ def __compute_bounds_of_monom_recurrence(monom: Expr):
     max_rec = max([b.recurrence_constant for b in branches])
     starting_values = __get_starting_values(maybe_pos, maybe_neg)
 
-    upper_candidates = __compute_bound_candidates({min_rec, max_rec}, {max_upper}, starting_values)
-    lower_candidates = __compute_bound_candidates({min_rec, max_rec}, {min_lower}, starting_values)
+    coeff_upper = {max_rec}
+    if maybe_neg:
+        coeff_upper.add(min_rec)
+
+    coeff_lower = {max_rec}
+    if maybe_neg:
+        coeff_upper.add(min_rec)
+
+    upper_candidates = __compute_bound_candidates(coeff_upper, {max_upper}, starting_values)
+    lower_candidates = __compute_bound_candidates(coeff_lower, {min_lower}, starting_values)
 
     max_upper_candidate = get_eventual_bound(upper_candidates, n, direction=Direction.PosInf)
     min_lower_candidate = get_eventual_bound(lower_candidates, n, direction=Direction.NegInf)
