@@ -28,7 +28,7 @@ class RepulsingSMRule(Rule):
 
         branches = get_cases_for_expression(sympify(self.program.loop_guard), self.program)
         branches = [simplify(branch - sympify(self.program.loop_guard)) for branch, _ in branches]
-        bounds = [bound_store.get_bounds_of_expr(case) for case in branches]
+        bounds = [bound_store.get_bounds_of_expr(branch) for branch in branches]
 
         # Make sure that there is always a positive probability of having a next iteration
         if all([cb.maybe_negative for cb in bounds]):

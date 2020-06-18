@@ -8,6 +8,7 @@ from mora.input import LOOP_GUARD_VAR
 from diofant import Expr, sympify, simplify, symbols
 
 from . import branch_store, bound_store
+from .geometric_rule import GeometricRule
 from .initial_state_rule import InitialStateRule
 from .supermartingale_rule import SupermartingaleRule
 from .ranking_sm_rule import RankingSMRule
@@ -30,6 +31,7 @@ def decide_termination(program: Program):
     print("Martingale expression: ", me_pos.as_expr())
     rules = [
         InitialStateRule(lgc, me_pos, program),
+        GeometricRule(lgc, me_pos, program),
         RankingSMRule(lgc, me_pos, program),
         SupermartingaleRule(lgc, me_pos, program),
         RepulsingSMRule(lgc, me_neg, program)
