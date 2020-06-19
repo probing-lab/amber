@@ -48,7 +48,7 @@ class RepulsingSMRule(Rule):
         if not is_dominating_or_same(sympify(0), epsilons, n) and is_dominating_or_same(epsilons, cs, n):
             result.PAST = Answer.FALSE
             result.AST = Answer.FALSE
-            result.add_witness(NONASTWitness(
+            result.add_witness(RepulsingASTWitness(
                 sympify(self.program.loop_guard) * -1,
                 self.martingale_expression,
                 epsilons,
@@ -56,7 +56,7 @@ class RepulsingSMRule(Rule):
             ))
         elif is_dominating_or_same(sympify(0), epsilons, n) and is_dominating_or_same(sympify(1), cs, n):
             result.PAST = Answer.FALSE
-            result.add_witness(NONPASTWitness(
+            result.add_witness(RepulsingPASTWitness(
                 sympify(self.program.loop_guard) * -1,
                 self.martingale_expression
             ))
@@ -64,10 +64,10 @@ class RepulsingSMRule(Rule):
         return result
 
 
-class NONASTWitness(Witness):
+class RepulsingASTWitness(Witness):
 
     def __init__(self, repulsing_martingale, martingale_expression, epsilons, cs):
-        super(NONASTWitness, self).__init__("Not AST")
+        super(RepulsingASTWitness, self).__init__("Not AST")
         repulsing_martingale = sympify(repulsing_martingale).as_expr()
         martingale_expression = sympify(martingale_expression).as_expr()
         epsilons = sympify(epsilons).as_expr()
@@ -84,10 +84,10 @@ class NONASTWitness(Witness):
                            f"by '{cs}' which is O(epsilons)."
 
 
-class NONPASTWitness(Witness):
+class RepulsingPASTWitness(Witness):
 
     def __init__(self, repulsing_martingale, martingale_expression):
-        super(NONPASTWitness, self).__init__("Not PAST")
+        super(RepulsingPASTWitness, self).__init__("Not PAST")
         repulsing_martingale = sympify(repulsing_martingale).as_expr()
         martingale_expression = sympify(martingale_expression).as_expr()
         self.data = {

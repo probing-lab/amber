@@ -32,7 +32,7 @@ class SupermartingaleRule(Rule):
             n = symbols('n')
             if is_dominating_or_same(bounds.upper, sympify(-1), n, direction=Direction.NegInf):
                 result.AST = Answer.TRUE
-                result.add_witness(ASTWitness(
+                result.add_witness(SupermartingaleWitness(
                     self.program.loop_guard,
                     self.martingale_expression,
                     branch,
@@ -44,10 +44,10 @@ class SupermartingaleRule(Rule):
         return result
 
 
-class ASTWitness(Witness):
+class SupermartingaleWitness(Witness):
 
     def __init__(self, martingale, martingale_expression, decreasing_branch, bound, prob):
-        super(ASTWitness, self).__init__("AST")
+        super(SupermartingaleWitness, self).__init__("AST")
         martingale = sympify(martingale).as_expr()
         martingale_expression = sympify(martingale_expression).as_expr()
         decreasing_branch = sympify(decreasing_branch).as_expr()

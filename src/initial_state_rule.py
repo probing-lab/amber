@@ -4,7 +4,7 @@ because of the initial condition
 """
 from diofant import sympify
 
-from .rule import Rule, Result
+from .rule import Rule, Result, Witness
 from .utils import Answer
 
 
@@ -23,6 +23,17 @@ class InitialStateRule(Rule):
 
         result.PAST = Answer.TRUE
         result.AST = Answer.TRUE
-        result.NONTERM = Answer.FALSE
+        result.add_witness(InitialStateWitness(loop_guard))
 
         return result
+
+
+class InitialStateWitness(Witness):
+
+    def __init__(self, loop_guard):
+        super(InitialStateWitness, self).__init__("PAST")
+        self.data = {
+            "Loop guard in initial state": loop_guard,
+        }
+        self.explanation = f"The value of the loop guard in the initial state is '{loop_guard}'. " \
+                           f"Therefore the loop is not entered."

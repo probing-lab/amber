@@ -34,7 +34,7 @@ class RankingSMRule(Rule):
 
         result.PAST = Answer.TRUE
         result.AST = Answer.TRUE
-        result.add_witness(PASTWitness(
+        result.add_witness(RankingSMWitness(
             self.program.loop_guard,
             self.martingale_expression,
             bounds.upper
@@ -43,10 +43,10 @@ class RankingSMRule(Rule):
         return result
 
 
-class PASTWitness(Witness):
+class RankingSMWitness(Witness):
 
     def __init__(self, ranking_martingale, martingale_expression, bound):
-        super(PASTWitness, self).__init__("PAST")
+        super(RankingSMWitness, self).__init__("PAST")
         ranking_martingale = sympify(ranking_martingale).as_expr()
         martingale_expression = sympify(martingale_expression).as_expr()
         bound = sympify(bound).as_expr()
