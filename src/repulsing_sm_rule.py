@@ -96,5 +96,5 @@ class NONPASTWitness(Witness):
         }
         self.explanation = f"There is always a positive probability of having a next iteration.\n" \
                            f"Moreover, '{repulsing_martingale}' eventually is a repulsing supermartingale\n" \
-                           f"decreasing with epsilons '0'. Also, the repulsing SM has differences bound\n" \
+                           f"decreasing with epsilons '0'. Also, the repulsing SM has differences bounded\n" \
                            f"by a constant."

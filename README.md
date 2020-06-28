@@ -5,7 +5,7 @@
 
 # Amber
 
-Amber is an academic prototype to decide the probabilistic termination behavior of Prob-solvalble loops.
+Amber is an academic prototype to decide the probabilistic termination behavior of Prob-solvable loops.
 
 ## Run Amber with Docker
 
@@ -73,12 +73,17 @@ source .venv/bin/activate
 pip install -r requirements.txt
 ```
 
+If the previous command failed, try the following instead:
+```shell script
+python -m pip install -r requirements.txt
+```
+
 
 ## Run Amber
 
 Having all dependencies installed, you can run Amber for example like this:
 ```shell script
-python ./amber.py benchmarks/past/2d_bounded_random_walk
+python ./amber.py --benchmarks benchmarks/past/2d_bounded_random_walk
 ```
 
 A more extensive help can be obtained by:

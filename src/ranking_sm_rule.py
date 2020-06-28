@@ -55,5 +55,5 @@ class PASTWitness(Witness):
             "SM expression": martingale_expression,
             "SM expression bound": bound,
         }
-        self.explanation = f"Eventually, '{ranking_martingale}' is a ranking supermartingale. Thats because eventually\n" \
+        self.explanation = f"Eventually, '{ranking_martingale}' is a ranking supermartingale. That's because eventually\n" \
                            f"the bound of the supermartingale expression is '{bound}'."
