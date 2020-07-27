@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="https://github.com/mmsbrggr/amber/blob/master/logo.svg">
+  <img src="https://github.com/probing-lab/amber/blob/master/logo.svg">
 </p>
 
 
@@ -17,7 +17,7 @@ This is the easiest way to run Amber.
 2. Run the following commands to clone the repository, build the docker image and run the container:
 
 ```shell script
-git clone git@github.com:mmsbrggr/amber.git
+git clone git@github.com:probing-lab/amber.git
 cd amber
 docker build -t amber .
 docker run -i --name amber1 amber &
@@ -53,7 +53,7 @@ Otherwise install it in your preferred way.
 2. Clone the repository:
 
 ```shell script
-git clone git@github.com:mmsbrggr/amber.git
+git clone git@github.com:probing-lab/amber.git
 cd amber
 ```
 
