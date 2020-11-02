@@ -116,7 +116,7 @@ def __get_bounds_of_monom(monom: Expr) -> Bounds:
 
 def __compute_bounds_of_monom(monom: Expr):
     global program
-    print(f"Computing bounds for {monom.as_expr()}")
+    log(f"Computing bounds for {monom.as_expr()}", LOG_ESSENTIAL)
     if monom_is_deterministic(monom, program):
         __compute_bounds_of_deterministic_monom(monom)
     elif len(monom.free_symbols) == 1 and get_all_monom_powers(monom)[0] > 2:
@@ -131,7 +131,7 @@ def __compute_bounds_of_monom(monom: Expr):
         __compute_bounds_of_monom_power(monom, power)
     else:
         __compute_bounds_of_monom_recurrence(monom)
-    print(f"Found bounds for {monom.as_expr()}")
+    log(f"Found bounds for {monom.as_expr()}", LOG_ESSENTIAL)
 
 
 def __compute_bounds_of_deterministic_monom(monom):

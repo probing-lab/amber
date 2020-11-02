@@ -1,4 +1,4 @@
-from .utils import Answer
+from .utils import Answer, log, LOG_ESSENTIAL
 
 
 class Result:
@@ -15,13 +15,13 @@ class Result:
         self.witnesses.append(witness)
 
     def print(self):
-        print()
-        print()
-        print("PAST: ", self.PAST)
-        print(" AST: ", self.AST)
-        print()
-        print()
+        log("", LOG_ESSENTIAL)
+        log("", LOG_ESSENTIAL)
+        log(f"PAST: {self.PAST}", LOG_ESSENTIAL)
+        log(f"AST: {self.AST}", LOG_ESSENTIAL)
+        log("", LOG_ESSENTIAL)
+        log("", LOG_ESSENTIAL)
         for witness in self.witnesses:
             witness.print()
-            print()
-            print()
+            log("", LOG_ESSENTIAL)
+            log("", LOG_ESSENTIAL)

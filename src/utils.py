@@ -5,6 +5,12 @@ from diofant import *
 from mora.core import Program
 
 
+LOG_NOTHING = 0
+LOG_ESSENTIAL = 10
+LOG_VERBOSE = 20
+LOG_LEVEL = LOG_ESSENTIAL
+
+
 class Answer(Enum):
     FALSE = auto()
     TRUE = auto()
@@ -114,3 +120,16 @@ def monom_is_deterministic(monom: Expr, program: Program):
     """
     variables_deterministic = [not program.updates[m].is_probabilistic for m in monom.free_symbols]
     return all(variables_deterministic)
+
+
+def set_log_level(log_level):
+    global LOG_LEVEL
+    LOG_LEVEL = log_level
+
+
+def log(message, level):
+    """
+    Logs a message depending on the log level
+    """
+    if level <= LOG_LEVEL:
+        print(message)

@@ -13,7 +13,7 @@ from .supermartingale_rule import SupermartingaleRule
 from .ranking_sm_rule import RankingSMRule
 from .repulsing_sm_rule import RepulsingSMRule
 from .rule import Result
-
+from .utils import LOG_ESSENTIAL, log
 
 LOOP_GUARD_CHANGE = 'loop_guard_change^1'
 
@@ -27,7 +27,7 @@ def decide_termination(program: Program):
     lgc = prepare_loop_guard_change(program)
     me_pos = create_martingale_expression(program, False)
     me_neg = create_martingale_expression(program, True)
-    print("Martingale expression: ", me_pos.as_expr())
+    log(f"Martingale expression: {me_pos.as_expr()}", LOG_ESSENTIAL)
     rules = [
         InitialStateRule(lgc, me_pos, program),
         RankingSMRule(lgc, me_pos, program),
@@ -42,7 +42,7 @@ def decide_termination(program: Program):
             if result.all_known():
                 break
 
-    result.print()
+    return result
 
 
 def create_martingale_expression(program: Program, invert: bool):

@@ -1,0 +1,8 @@
+# Race between a tortoise and the hare
+# The tortoise always advances by 1 whereas the step size of the hare is drawn from a probability distribution
+
+h = 0
+t = 30
+while h < t:
+    t = t + 1
+    h = h + 0 @ 1/2; h + 1 @ 1/20; h + 2 @ 1/20; h + 3 @ 1/20; h + 4 @ 1/20; h + 5 @ 1/20; h + 6 @ 1/20; h + 7 @ 1/20; h + 8 @ 1/20; h + 9 @ 1/20; h + 10

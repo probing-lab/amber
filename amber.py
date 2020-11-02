@@ -52,7 +52,8 @@ def main():
         else:
             try:
                 program = mora(benchmark, goal=1)
-                decide_termination(program)
+                result = decide_termination(program)
+                result.print()
             except MoraException as exception:
                 print("Something went wrong with Mora", exception)
 

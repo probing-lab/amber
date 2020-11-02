@@ -95,7 +95,7 @@ def get_expected_change(expected_var: Expr):
 
 def get_n(expression: Expr):
     for s in expression.free_symbols:
-        if str(s) is "n":
+        if str(s) == "n":
             return s
     return None
 

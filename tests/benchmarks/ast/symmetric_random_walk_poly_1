@@ -1,0 +1,8 @@
+# Symmetric 1d random walk with polynomial behavior
+# The program is AST
+
+x = 10
+y = 0
+while x > 0:
+    y = y + 1
+    x = x + (y**2 - y) @ 1/2; x - (y**2 - y)
