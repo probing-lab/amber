@@ -1,10 +1,12 @@
-from mora.mora import mora
+from mora.input import InputParser
 from . import branch_store, bound_store
 from .utils import log, LOG_ESSENTIAL
 
 
 def bounds(benchmark, expression):
-    program = mora(benchmark, goal=1)
+    input_parser = InputParser()
+    input_parser.set_source(benchmark)
+    program = input_parser.parse_source()
     branch_store.set_program(program)
     bound_store.set_program(program)
     bounds = bound_store.get_bounds_of_expr(expression)

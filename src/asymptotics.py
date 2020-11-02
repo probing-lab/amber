@@ -1,4 +1,3 @@
-from diofant import *
 from .utils import *
 from enum import Enum, auto
 
@@ -68,7 +67,7 @@ def simplify_asymptotically(expression: Expr, n: Symbol):
     if n not in expression.free_symbols:
         return expression
 
-    expression = simplify(expression)
+    expression = expand(expression)
     limit_exp = limit(expression, n, oo)
     if limit_exp == 0:
         return expression

@@ -13,7 +13,7 @@ from .rule import Rule, Result, Witness
 
 class SupermartingaleRule(Rule):
     def is_applicable(self):
-        n = symbols('n')
+        n = symbols("n", integer=True, positive=True)
         lim = limit(self.loop_guard_change, n, oo)
         return lim <= 0
 
@@ -29,7 +29,7 @@ class SupermartingaleRule(Rule):
         branches = get_cases_for_expression(sympify(self.program.loop_guard), self.program)
         for branch, prob in branches:
             bounds = bound_store.get_bounds_of_expr(branch - sympify(self.program.loop_guard))
-            n = symbols('n')
+            n = symbols("n", integer=True, positive=True)
             if is_dominating_or_same(bounds.upper, sympify(-1), n, direction=Direction.NegInf):
                 result.AST = Answer.TRUE
                 result.add_witness(ASTWitness(

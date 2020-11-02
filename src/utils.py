@@ -48,11 +48,12 @@ def get_max_0(expression: Expr, n: Symbol):
     """
     Returns the maximum positive 0 of a given expression or 0 if it does not exist
     """
+    n_real = symbols("n", real=True)
     try:
-        exp_zeros = solve(expression, n)
+        exp_zeros = solve(expression.xreplace({n: n_real}), n_real)
         if exp_zeros == [{}]:
             return 0
-        exp_zeros = [z[n] for z in exp_zeros if z[n].is_real]
+        exp_zeros = [z[n_real] for z in exp_zeros if z[n_real].is_real]
     except NotImplementedError:
         exp_zeros = []
     exp_zeros = [math.ceil(float(z)) for z in exp_zeros] + [0]

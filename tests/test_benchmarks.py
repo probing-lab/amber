@@ -1,7 +1,8 @@
 import glob
 import unittest
 
-from mora.mora import mora
+from mora.input import InputParser
+from mora.utils import set_log_level as set_mora_log_level, LOG_NOTHING as MORA_LOG_NOTHING
 from src import decide_termination
 from src.utils import Answer, set_log_level, LOG_NOTHING
 
@@ -11,7 +12,9 @@ benchmarks_nast = glob.glob("tests/benchmarks/non-ast/*")
 
 def test_generator_past(benchmark):
     def test(self):
-        program = mora(benchmark, goal=1)
+        input_parser = InputParser()
+        input_parser.set_source(benchmark)
+        program = input_parser.parse_source()
         result = decide_termination(program)
         self.assertEqual(result.PAST, Answer.TRUE, benchmark)
         self.assertEqual(result.AST, Answer.TRUE, benchmark)
@@ -21,7 +24,9 @@ def test_generator_past(benchmark):
 
 def test_generator_ast(benchmark):
     def test(self):
-        program = mora(benchmark, goal=1)
+        input_parser = InputParser()
+        input_parser.set_source(benchmark)
+        program = input_parser.parse_source()
         result = decide_termination(program)
         self.assertEqual(result.AST, Answer.TRUE, benchmark)
         self.assertTrue(len(result.witnesses) > 0, benchmark)
@@ -30,7 +35,9 @@ def test_generator_ast(benchmark):
 
 def test_generator_nast(benchmark):
     def test(self):
-        program = mora(benchmark, goal=1)
+        input_parser = InputParser()
+        input_parser.set_source(benchmark)
+        program = input_parser.parse_source()
         result = decide_termination(program)
         self.assertEqual(result.PAST, Answer.FALSE, benchmark)
         self.assertEqual(result.AST, Answer.FALSE, benchmark)
@@ -42,6 +49,7 @@ class TestBenchmarks(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
+        set_mora_log_level(MORA_LOG_NOTHING)
         set_log_level(LOG_NOTHING)
 
 

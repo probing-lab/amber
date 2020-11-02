@@ -14,7 +14,7 @@ from .rule import Rule, Result, Witness
 class RepulsingSMRule(Rule):
 
     def is_applicable(self):
-        n = symbols('n')
+        n = symbols("n", integer=True, positive=True)
         lim = limit(self.loop_guard_change, n, oo)
         return lim >= 0
 
@@ -34,7 +34,7 @@ class RepulsingSMRule(Rule):
         if all([cb.maybe_negative for cb in bounds]):
             return result
 
-        n = symbols('n')
+        n = symbols("n", integer=True, positive=True)
         cs = get_eventual_bound([cb.absolute_upper for cb in bounds], n)
         epsilons = simplify(bound_store.get_bounds_of_expr(self.martingale_expression).upper * -1)
 

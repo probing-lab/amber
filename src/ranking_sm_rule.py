@@ -13,7 +13,7 @@ from .asymptotics import is_dominating_or_same, Direction
 class RankingSMRule(Rule):
 
     def is_applicable(self):
-        n = symbols('n')
+        n = symbols("n", integer=True, positive=True)
         lim = limit(self.loop_guard_change, n, oo)
         max_0 = get_max_0(self.loop_guard_change, n)
         return bool(lim < 0 or max_0 > 0)
@@ -28,7 +28,7 @@ class RankingSMRule(Rule):
 
         # To be ranking martingale expression has to eventually decrease more or equal to constant
         bounds = bound_store.get_bounds_of_expr(self.martingale_expression)
-        n = symbols('n')
+        n = symbols("n", integer=True, positive=True)
         if not is_dominating_or_same(bounds.upper, sympify(-1), n, direction=Direction.NegInf):
             return result
 

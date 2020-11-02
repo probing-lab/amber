@@ -22,15 +22,14 @@ def get_cases_for_expression(expression: Expr, program: Program) -> [Case]:
         result = split_expressions_on_symbol(result, symbol, program)
         result = combine_expressions(result)
 
-    variables = set(program.variables).difference({symbols('n')})
-    return to_polynomials(result, variables)
+    return to_polynomials(result, program.variables)
 
 
 def get_initial_value_for_expression(expression: Expr, program: Program) -> Number:
     """
     For a given expression returns its initial value
     """
-    result = expression.subs({symbols('n'): 0})
+    result = expression.xreplace({symbols("n", integer=True, positive=True): 0})
     for var, update in program.initial_values.items():
         if hasattr(update, 'branches') and len(update.branches) > 0:
             result = result.subs({var: update.branches[0][0]})

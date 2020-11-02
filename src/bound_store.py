@@ -3,13 +3,13 @@ This modules contains functions providing the bounds of given monomials and poly
 """
 
 from diofant import *
-from mora.core import Program
+from mora.core import Program, get_solution as get_expected
 from .utils import *
 from .asymptotics import *
 from . import branch_store
 
 store = {}
-program = None
+program: Program = None
 
 
 class Bounds:
@@ -23,7 +23,7 @@ class Bounds:
     @property
     def absolute_upper(self):
         if self.__absolute_upper__ is None:
-            n = symbols('n')
+            n = symbols("n", integer=True, positive=True)
             self.__absolute_upper__ = get_eventual_bound([self.upper, self.lower * -1], n)
         return self.__absolute_upper__
 
@@ -41,9 +41,7 @@ def get_bounds_of_expr(expression: Expr) -> Bounds:
     """
     Computes the bounds of a polynomial over the program variables. It does so by substituting the bounds of the monomials.
     """
-    expression = sympify(expression)
-    variables = set(program.variables).difference({symbols('n')})
-    expression = expression.as_poly(variables)
+    expression = expression.as_poly(program.variables)
     expr_bounds = __initialize_bounds_for_expression(expression)
     monoms = get_monoms(expression)
     for monom in monoms:
@@ -53,8 +51,9 @@ def get_bounds_of_expr(expression: Expr) -> Bounds:
     upper_candidates = __split_on_signums(expr_bounds.upper.as_expr())
     lower_candidates = __split_on_signums(expr_bounds.lower.as_expr())
 
-    expr_bounds.upper = get_eventual_bound(upper_candidates, symbols('n'), direction=Direction.PosInf)
-    expr_bounds.lower = get_eventual_bound(lower_candidates, symbols('n'), direction=Direction.NegInf)
+    n = symbols("n", integer=True, positive=True)
+    expr_bounds.upper = get_eventual_bound(upper_candidates, n, direction=Direction.PosInf)
+    expr_bounds.lower = get_eventual_bound(lower_candidates, n, direction=Direction.NegInf)
     return expr_bounds
 
 
@@ -66,7 +65,7 @@ def __replace_monom_in_expr_bounds(monom, monom_bounds: Bounds, expression: Poly
     coeff = expression.coeff_monomial(monom)
     # n can be in coefficient. Therefore check whether the coefficient eventually stays positive.
     if len(coeff.free_symbols) > 0:
-        coeff = limit(coeff, symbols('n'), oo)
+        coeff = limit(coeff, symbols("n", integer=True, positive=True), oo)
 
     if coeff > 0:
         upper = monom_bounds.upper
@@ -97,7 +96,7 @@ def __initialize_bounds_for_expression(expression: Poly) -> Bounds:
 
     # Initialize the polarity of the expression by the polarity of the deterministic part
     n_expr = expression.coeff_monomial(1)
-    pos, neg = get_polarity(n_expr, symbols('n'))
+    pos, neg = get_polarity(n_expr, symbols("n", integer=True, positive=True))
 
     bounds.maybe_positive = pos
     bounds.maybe_negative = neg
@@ -142,12 +141,10 @@ def __compute_bounds_of_deterministic_monom(monom):
     global program
     bound = monom
     for variable in monom.free_symbols:
-        moment = program.moments[str(variable) + "^1"]
+        moment = get_expected(program, variable.as_poly(program.variables))
         bound = bound.subs({variable: moment})
 
-    n_int = symbols('n', integer=True)
-    n = symbols('n')
-    bound = bound.subs({n_int: n})
+    n = symbols("n", integer=True, positive=True)
     pos, neg = get_polarity(bound, n)
     bound = simplify_asymptotically(bound, n)
 
@@ -166,7 +163,7 @@ def __compute_bounds_of_monom_power(monom: Expr, power: Number):
     Computes the bounds of monom**odd_power by just taking the bounds of monom and raising it to the given power.
     This is only sound if the given power is odd or the monom is always positive
     """
-    n = symbols('n')
+    n = symbols("n", integer=True, positive=True)
     monom_bounds = __get_bounds_of_monom(monom)
     upper_bound = simplify_asymptotically(monom_bounds.upper ** power, n)
     lower_bound = simplify_asymptotically(monom_bounds.lower ** power, n)
@@ -185,14 +182,14 @@ def __compute_bounds_of_monom_recurrence(monom: Expr):
     """
     Computes the bounds of a monomial by representing it as a recurrence relation
     """
-    n = symbols('n')
+    n = symbols("n", integer=True, positive=True)
     branches = branch_store.get_branches_of_monom(monom)
     inhom_parts_bounds = [get_bounds_of_expr(b.inhom_part) for b in branches]
     initial_value = branch_store.get_initial_value_of_monom(monom)
     maybe_pos, maybe_neg = __get_monom_polarity(monom, inhom_parts_bounds, initial_value)
 
-    inhom_parts_bounds_lower = [b.lower.subs({n: n - 1}) for b in inhom_parts_bounds]
-    inhom_parts_bounds_upper = [b.upper.subs({n: n - 1}) for b in inhom_parts_bounds]
+    inhom_parts_bounds_lower = [expand(b.lower.xreplace({n: n - 1})) for b in inhom_parts_bounds]
+    inhom_parts_bounds_upper = [expand(b.upper.xreplace({n: n - 1})) for b in inhom_parts_bounds]
 
     max_upper = get_eventual_bound(inhom_parts_bounds_upper, n, direction=Direction.PosInf)
     min_lower = get_eventual_bound(inhom_parts_bounds_lower, n, direction=Direction.NegInf)
@@ -286,7 +283,7 @@ def __compute_bound_candidates(coefficients: [Number], inhom_parts: [Expr], star
             c0 = symbols('c0')
             solution = __compute_bound_candidate(c, part, c0)
             for v in starting_values:
-                solution = solution.subs({c0: v})
+                solution = solution.xreplace({c0: v})
                 # If a candidate contains signum functions, we have to split the candidate into more candidates
                 new_candidates = __split_on_signums(solution)
                 candidates += new_candidates
@@ -299,7 +296,7 @@ def __compute_bound_candidate(c: Number, inhom_part: Expr, starting_value: Expr)
     Computes a single function which is potentially a bound be solving a recurrence relation
     """
     f = Function('f')
-    n = symbols('n')
+    n = symbols("n", integer=True, positive=True)
     solution = rsolve(f(n) - c*f(n-1) - inhom_part, f(n), init={f(0): starting_value})
     solution = solution[0][f](n)
     return solution
@@ -311,7 +308,7 @@ def __split_on_signums(expression: Expr) -> [Expr]:
     its limit, e.g. for c*sign(d - 1) returns [c*e, c*(-e)]
     """
     exps = [expression]
-    n = symbols('n')
+    n = symbols("n", integer=True, positive=True)
     expression_limit = limit(expression, n, oo)
     signums = get_signums_in_expression(expression_limit)
     for s in signums:

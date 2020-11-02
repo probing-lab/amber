@@ -34,7 +34,7 @@ class Branch:
 
 store = {}
 initial_value_store = {}
-program = None
+program: Program = None
 
 
 def set_program(p: Program):
