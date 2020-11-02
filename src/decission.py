@@ -5,7 +5,7 @@ to get something about its termination behavior. Then the proof-rule gets applie
 
 from mora.core import Program, get_solution as get_expected, get_recurrence, reset_mora
 from mora.input import LOOP_GUARD_VAR
-from diofant import Expr, sympify, symbols, expand
+from diofant import sympify, symbols, expand
 
 from . import branch_store, bound_store
 from .initial_state_rule import InitialStateRule
@@ -53,7 +53,6 @@ def create_martingale_expression(program: Program):
     expected_guard = get_recurrence(program, lg)
     lg = program.updates[symbols(LOOP_GUARD_VAR)].branches[0][0]
     expression = expand(expected_guard - lg).as_expr()
-    expression = substitute_deterministic_variables(expression, program)
     return expand(expression)
 
 
@@ -66,14 +65,3 @@ def get_loop_guard_change(program: Program):
     expected_lg = get_expected(program, lg)
     expected_lg_plus = expected_lg.xreplace({n: n+1})
     return expand(expected_lg_plus - expected_lg)
-
-
-def substitute_deterministic_variables(expr: Expr, program: Program):
-    """
-    Substitutes deterministic variables in a given expression with their representation in n.
-    """
-    for symbol, update in program.updates.items():
-        if str(symbol) != LOOP_GUARD_VAR and not update.is_probabilistic:
-            closed_form = get_expected(program, symbol.as_poly(program.variables))
-            expr = expand(expr.xreplace({symbol: closed_form}))
-    return expr

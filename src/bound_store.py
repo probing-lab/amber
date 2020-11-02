@@ -322,7 +322,7 @@ def __split_on_signums(expression: Expr) -> [Expr]:
         symbol = list(s.free_symbols)[0]
         new_exps = []
         for exp in exps:
-            # Get rid of the signum expression by replacing it by a positve and an negative constant
+            # Get rid of the signum expression by replacing it by a positive and an negative constant
             # This is done by substituting the arbitrary symbol by just the right expression s.t. things cancel out
             constant = unique_symbol('e', positive=True, real=True)
             solutions = solve(s - constant, [symbol])
