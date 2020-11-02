@@ -293,12 +293,17 @@ def __compute_bound_candidates(coefficients: [Number], inhom_parts: [Expr], star
 
 def __compute_bound_candidate(c: Number, inhom_part: Expr, starting_value: Expr) -> Expr:
     """
-    Computes a single function which is potentially a bound be solving a recurrence relation
+    Computes a single function which is potentially a bound by solving a recurrence relation
     """
-    f = Function('f')
-    n = symbols("n", integer=True, positive=True)
-    solution = rsolve(f(n) - c*f(n-1) - inhom_part, f(n), init={f(0): starting_value})
-    solution = solution[0][f](n)
+    n = symbols('n', integer=True, positive=True)
+    if c.is_zero:
+        return expand(inhom_part.xreplace({n: n - 1}))
+
+    hom_solution = (c ** n) * starting_value
+    k = symbols('_k', integer=True, positive=True)
+    summand = simplify((c ** k) * inhom_part.xreplace({n: (n - 1) - k}))
+    particular_solution = summation(summand, (k, 0, (n - 1)))
+    solution = simplify(hom_solution + particular_solution)
     return solution
 
 
