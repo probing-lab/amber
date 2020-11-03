@@ -65,7 +65,7 @@ def __replace_monom_in_expr_bounds(monom, monom_bounds: Bounds, expression: Poly
     coeff = expression.coeff_monomial(monom)
     # n can be in coefficient. Therefore check whether the coefficient eventually stays positive.
     if len(coeff.free_symbols) > 0:
-        coeff = limit(coeff, symbols("n", integer=True, positive=True), oo)
+        coeff = amber_limit(coeff, symbols("n", integer=True, positive=True))
 
     if coeff > 0:
         upper = monom_bounds.upper
@@ -314,7 +314,7 @@ def __split_on_signums(expression: Expr) -> [Expr]:
     """
     exps = [expression]
     n = symbols("n", integer=True, positive=True)
-    expression_limit = limit(expression, n, oo)
+    expression_limit = amber_limit(expression, n)
     signums = get_signums_in_expression(expression_limit)
     for s in signums:
         # Choose an arbitrary symbol from the signum expression

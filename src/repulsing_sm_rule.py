@@ -2,20 +2,21 @@
 This module implements the repulsing supermartingale proof rule
 """
 
-from diofant import symbols, limit, oo, sympify, simplify
+from diofant import symbols, sympify, simplify
 
 from . import bound_store
 from .asymptotics import get_eventual_bound, is_dominating_or_same, Answer
 from .expression import get_cases_for_expression
 from .invariance import is_invariant
 from .rule import Rule, Result, Witness
+from .utils import amber_limit
 
 
 class RepulsingSMRule(Rule):
 
     def is_applicable(self):
         n = symbols("n", integer=True, positive=True)
-        lim = limit(self.loop_guard_change, n, oo)
+        lim = amber_limit(self.loop_guard_change, n)
         return lim >= 0
 
     def run(self, result: Result):

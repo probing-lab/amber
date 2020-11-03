@@ -2,11 +2,11 @@
 This module implements the ranking supermartingale proof rule
 """
 
-from diofant import symbols, limit, oo, sympify
+from diofant import symbols, sympify
 from . import bound_store
 from .invariance import is_invariant
 from .rule import Rule, Result, Witness
-from .utils import get_max_0, Answer
+from .utils import get_max_0, Answer, amber_limit
 from .asymptotics import is_dominating_or_same, Direction
 
 
@@ -14,7 +14,7 @@ class RankingSMRule(Rule):
 
     def is_applicable(self):
         n = symbols("n", integer=True, positive=True)
-        lim = limit(self.loop_guard_change, n, oo)
+        lim = amber_limit(self.loop_guard_change, n)
         max_0 = get_max_0(self.loop_guard_change, n)
         return bool(lim < 0 or max_0 > 0)
 

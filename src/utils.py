@@ -144,3 +144,10 @@ def log(message, level):
     """
     if level <= LOG_LEVEL:
         print(message)
+
+
+def amber_limit(expr, n):
+    if n not in expr.free_symbols:
+        return expr
+
+    return limit(expr, n, oo)
