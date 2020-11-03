@@ -123,6 +123,16 @@ def monom_is_deterministic(monom: Expr, program: Program):
     return all(variables_deterministic)
 
 
+def divide_monom_powers_by(monom: Expr, divisor):
+    """
+    Returns the given monom where all powers a divided by divisor
+    """
+    monom = monom.as_poly(monom.free_symbols)
+    powers = monom.monoms()[0]
+    vars_with_powers = [v ** (p // divisor) for v, p in zip(monom.gens, powers)]
+    return prod(vars_with_powers)
+
+
 def set_log_level(log_level):
     global LOG_LEVEL
     LOG_LEVEL = log_level

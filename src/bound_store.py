@@ -114,24 +114,24 @@ def __get_bounds_of_monom(monom: Expr) -> Bounds:
 
 
 def __compute_bounds_of_monom(monom: Expr):
+    """
+    Computes the bounds of a monomial. First checks if the monomial is deterministic, then if it is another
+    monomial to an odd power and only after that computes the bounds via recurrences.
+    """
     global program
     log(f"Computing bounds for {monom.as_expr()}", LOG_ESSENTIAL)
     if monom_is_deterministic(monom, program):
         __compute_bounds_of_deterministic_monom(monom)
-    elif len(monom.free_symbols) == 1 and get_all_monom_powers(monom)[0] > 2:
-        variable = monom.free_symbols.pop()
-        power = get_all_monom_powers(monom)[0]
-        if power % 2 == 0:
-            monom = variable ** 2
-            power = int(power / 2)
-        else:
-            monom = variable
-            power = power
-        __compute_bounds_of_monom_power(monom, power)
-    else:
-        __compute_bounds_of_monom_recurrence(monom)
-    log(f"Found bounds for {monom.as_expr()}", LOG_ESSENTIAL)
+        return
 
+    powers = get_all_monom_powers(monom)
+    power_gcd = igcd(*powers)
+    if power_gcd > 1 and power_gcd % 2 == 1:
+        monom = divide_monom_powers_by(monom, power_gcd)
+        __compute_bounds_of_monom_power(monom, power_gcd)
+        return
+
+    __compute_bounds_of_monom_recurrence(monom)
 
 def __compute_bounds_of_deterministic_monom(monom):
     """
@@ -160,7 +160,7 @@ def __compute_bounds_of_deterministic_monom(monom):
 
 def __compute_bounds_of_monom_power(monom: Expr, power: Number):
     """
-    Computes the bounds of monom**odd_power by just taking the bounds of monom and raising it to the given power.
+    Computes the bounds of monom**power by just taking the bounds of monom and raising it to the given power.
     This is only sound if the given power is odd or the monom is always positive
     """
     n = symbols("n", integer=True, positive=True)
