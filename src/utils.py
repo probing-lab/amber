@@ -133,6 +133,20 @@ def divide_monom_powers_by(monom: Expr, divisor):
     return prod(vars_with_powers)
 
 
+def separate_rvs_from_monom(monom: Expr, program: Program):
+    monom = monom.as_poly(monom.free_symbols)
+    powers = monom.monoms()[0]
+    vars_with_powers = [(v, p) for v, p in zip(monom.gens, powers)]
+    m = sympify(1)
+    rvs = []
+    for v, p in vars_with_powers:
+        if program.updates[v].is_random_var and not hasattr(program.updates[v], "branches"):
+            rvs.append((v, p))
+        else:
+            m *= v ** p
+    return rvs, m
+
+
 def set_log_level(log_level):
     global LOG_LEVEL
     LOG_LEVEL = log_level

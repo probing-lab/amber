@@ -7,6 +7,14 @@ class Direction(Enum):
     NegInf = auto()
 
 
+def dominating(fs: [Expr], n: Symbol):
+    return get_eventual_bound(fs, n, Direction.PosInf)
+
+
+def dominated(fs: [Expr], n: Symbol):
+    return get_eventual_bound(fs, n, Direction.NegInf)
+
+
 def get_eventual_bound(fs: [Expr], n: Symbol, direction: Direction = Direction.PosInf) -> Expr:
     """
     Given a list of expressions in n, it returns a single expression which is eventually a bound on all fs.
@@ -16,6 +24,10 @@ def get_eventual_bound(fs: [Expr], n: Symbol, direction: Direction = Direction.P
     for f in fs:
         if result is None:
             result = f
+        if direction == Direction.PosInf and result == oo:
+            return result
+        if direction == Direction.NegInf and result == -oo:
+            return result
         else:
             result = result if is_dominating_or_same(result, f, n, direction) else f
 

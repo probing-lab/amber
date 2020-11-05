@@ -6,7 +6,7 @@ from diofant import symbols, sympify
 
 from . import bound_store
 from .asymptotics import is_dominating_or_same, Direction, Answer
-from .expression import get_cases_for_expression
+from .expression import get_cases_for_expression, split_expressions_on_rvs
 from .invariance import is_invariant
 from .rule import Rule, Result, Witness
 from .utils import amber_limit
@@ -28,6 +28,7 @@ class SupermartingaleRule(Rule):
 
         # Eventually one branch of LG_{i+1} - LG_i has to decrease more or equal than constant
         branches = get_cases_for_expression(sympify(self.program.loop_guard), self.program)
+        branches = split_expressions_on_rvs(branches, self.program)
         for branch, prob in branches:
             bounds = bound_store.get_bounds_of_expr(branch - sympify(self.program.loop_guard))
             n = symbols("n", integer=True, positive=True)

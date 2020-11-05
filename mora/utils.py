@@ -1,6 +1,6 @@
 from typing import Iterable
 
-from diofant import sympify, Rational, Poly, prod, Symbol, symbols
+from diofant import sympify, Rational, Poly, prod, Symbol, symbols, oo, Max
 from scipy.stats import norm
 from math import sqrt
 import re
@@ -14,11 +14,14 @@ class Update:
     # parse updates
     # takes string "x = P @ p; Q @ q" or x = RV(d, a, b)
     # creates class to deal with substituing powers of variables and moments
-    def __init__(self, var, update_string, program_variables=None, is_random_var=False, random_var=None):
+    def __init__(self, var, update_string=None, program_variables=None, is_random_var=False, random_var=None):
         self.is_random_var = is_random_var
         self.random_var = random_var
         self.var = var
         self.is_probabilistic = True
+
+        if update_string is None:
+            return
 
         # check if this is a RV or expression update
         rv = re.search(r"RV\((?P<params>.+)\)", update_string)
@@ -62,6 +65,18 @@ class RandomVar:
         self.distribution = distribution
         self.parameters = parameters
         self.var_name = var_name
+
+    def get_support(self, k=1):
+        if self.distribution == 'uniform':
+            l, u = self.parameters
+            return interval_to_power(l, u, k)
+
+        if self.distribution == 'symbolic-support':
+            l, u = self.parameters
+            return interval_to_power(l, u, k)
+
+        if self.distribution == 'gauss':
+            return interval_to_power(-oo, oo, k)
 
     def compute_moment(self, k):
         if self.distribution == 'finite':
@@ -222,3 +237,18 @@ def make_floats_rational(expr):
         return expr
 
     return expr.func(*[make_floats_rational(a) for a in expr.args])
+
+
+def interval_to_power(low, high, power):
+    """
+    If x in [low, high] returns an interval [l, h] s.t. x**power in [l, h]
+    """
+    l = low ** power
+    h = high ** power
+    if power % 2 == 0:
+        if high < 0:
+            h, l = l, h
+        elif low < 0:
+            h = Max(h, l)
+            l = sympify(0)
+    return l, h

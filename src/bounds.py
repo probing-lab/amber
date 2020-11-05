@@ -1,3 +1,5 @@
+from diofant import sympify
+
 from mora.input import InputParser
 from . import branch_store, bound_store
 from .utils import log, LOG_ESSENTIAL
@@ -9,6 +11,7 @@ def bounds(benchmark, expression):
     program = input_parser.parse_source()
     branch_store.set_program(program)
     bound_store.set_program(program)
+    expression = sympify(expression)
     bounds = bound_store.get_bounds_of_expr(expression)
     log(f"Expression: {bounds.expression}", LOG_ESSENTIAL)
     log(f"Lower bound: {bounds.lower}", LOG_ESSENTIAL)

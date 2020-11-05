@@ -24,7 +24,7 @@ class Bounds:
     def absolute_upper(self):
         if self.__absolute_upper__ is None:
             n = symbols("n", integer=True, positive=True)
-            self.__absolute_upper__ = get_eventual_bound([self.upper, self.lower * -1], n)
+            self.__absolute_upper__ = dominating([self.upper, self.lower * -1], n)
         return self.__absolute_upper__
 
 
@@ -37,6 +37,29 @@ def set_program(p: Program):
     store = {}
 
 
+def __multiply_rvs_for_monom_bounds(rvs, monom_bounds: Bounds):
+    """
+    Given bounds for a monom x, computes bounds for the monom rvs * x by handling one random variable in rv at a time
+    """
+    global program
+    n = symbols("n", integer=True, positive=True)
+    for rv, power in rvs:
+        low, high = program.updates[rv].random_var.get_support(power)
+        candidates = [
+            low * monom_bounds.lower,
+            high * monom_bounds.lower,
+            low * monom_bounds.upper,
+            high * monom_bounds.upper
+        ]
+        rv_pos = high > 0
+        rv_neg = low < 0
+        monom_bounds.upper = dominating(candidates, n)
+        monom_bounds.lower = dominated(candidates, n)
+        monom_bounds.maybe_positive = (rv_pos and monom_bounds.maybe_positive) or (rv_neg and monom_bounds.maybe_negative)
+        monom_bounds.maybe_negative = (rv_neg and monom_bounds.maybe_positive) or (rv_pos and monom_bounds.maybe_negative)
+    return monom_bounds
+
+
 def get_bounds_of_expr(expression: Expr) -> Bounds:
     """
     Computes the bounds of a polynomial over the program variables. It does so by substituting the bounds of the monomials.
@@ -45,15 +68,17 @@ def get_bounds_of_expr(expression: Expr) -> Bounds:
     expr_bounds = __initialize_bounds_for_expression(expression)
     monoms = get_monoms(expression)
     for monom in monoms:
-        monom_bounds = __get_bounds_of_monom(monom)
+        rvs, m = separate_rvs_from_monom(monom, program)
+        m_bounds = __get_bounds_of_monom(m)
+        monom_bounds = __multiply_rvs_for_monom_bounds(rvs, m_bounds)
         __replace_monom_in_expr_bounds(monom, monom_bounds, expression, expr_bounds)
 
     upper_candidates = __split_on_signums(expr_bounds.upper.as_expr())
     lower_candidates = __split_on_signums(expr_bounds.lower.as_expr())
 
     n = symbols("n", integer=True, positive=True)
-    expr_bounds.upper = get_eventual_bound(upper_candidates, n, direction=Direction.PosInf)
-    expr_bounds.lower = get_eventual_bound(lower_candidates, n, direction=Direction.NegInf)
+    expr_bounds.upper = dominating(upper_candidates, n)
+    expr_bounds.lower = dominated(lower_candidates, n)
     return expr_bounds
 
 
@@ -91,8 +116,8 @@ def __initialize_bounds_for_expression(expression: Poly) -> Bounds:
     """
     bounds = Bounds()
     bounds.expression = expression.as_expr()
-    bounds.lower = expression.copy()
-    bounds.upper = expression.copy()
+    bounds.lower = expression.as_expr()
+    bounds.upper = expression.as_expr()
 
     # Initialize the polarity of the expression by the polarity of the deterministic part
     n_expr = expression.coeff_monomial(1)
@@ -132,6 +157,7 @@ def __compute_bounds_of_monom(monom: Expr):
         return
 
     __compute_bounds_of_monom_recurrence(monom)
+
 
 def __compute_bounds_of_deterministic_monom(monom):
     """
@@ -191,8 +217,8 @@ def __compute_bounds_of_monom_recurrence(monom: Expr):
     inhom_parts_bounds_lower = [expand(b.lower.xreplace({n: n - 1})) for b in inhom_parts_bounds]
     inhom_parts_bounds_upper = [expand(b.upper.xreplace({n: n - 1})) for b in inhom_parts_bounds]
 
-    max_upper = get_eventual_bound(inhom_parts_bounds_upper, n, direction=Direction.PosInf)
-    min_lower = get_eventual_bound(inhom_parts_bounds_lower, n, direction=Direction.NegInf)
+    max_upper = dominating(inhom_parts_bounds_upper, n)
+    min_lower = dominated(inhom_parts_bounds_lower, n)
     min_rec = min([b.recurrence_constant for b in branches])
     max_rec = max([b.recurrence_constant for b in branches])
     starting_values = __get_starting_values(maybe_pos, maybe_neg)
@@ -203,20 +229,20 @@ def __compute_bounds_of_monom_recurrence(monom: Expr):
 
     coeff_lower = {max_rec}
     if maybe_neg:
-        coeff_upper.add(min_rec)
+        coeff_lower.add(min_rec)
 
     upper_candidates = __compute_bound_candidates(coeff_upper, {max_upper}, starting_values)
     lower_candidates = __compute_bound_candidates(coeff_lower, {min_lower}, starting_values)
 
-    max_upper_candidate = get_eventual_bound(upper_candidates, n, direction=Direction.PosInf)
-    min_lower_candidate = get_eventual_bound(lower_candidates, n, direction=Direction.NegInf)
+    max_upper_candidate = dominating(upper_candidates, n)
+    min_lower_candidate = dominated(lower_candidates, n)
 
     # If monom is negative upper bound cannot be larger than 0
     if not maybe_pos:
-        max_upper_candidate = get_eventual_bound([max_upper_candidate, sympify(0)], n, direction=Direction.NegInf)
+        max_upper_candidate = dominated([max_upper_candidate, sympify(0)], n)
     # If monom is positive lower bound cannot be smaller than 0
     if not maybe_neg:
-        min_lower_candidate = get_eventual_bound([min_lower_candidate, sympify(0)], n, direction=Direction.PosInf)
+        min_lower_candidate = dominating([min_lower_candidate, sympify(0)], n)
 
     bounds = Bounds()
     bounds.expression = monom.as_expr()
