@@ -133,11 +133,10 @@ def split_expressions_on_rv(expressions: [Case], rv: Symbol, program: Program):
         return expressions
 
     split_rvs = []
-    epsilon1 = unique_symbol("eps", real=True, positive=True)
-    epsilon2 = unique_symbol("eps", real=True, positive=True)
-    split_rvs.append(RandomVar("symbolic-support", (low, -epsilon1)))
-    split_rvs.append(RandomVar("symbolic-support", (-epsilon1, epsilon2)))
-    split_rvs.append(RandomVar("symbolic-support", (epsilon2, high)))
+    epsilon = unique_symbol("eps", real=True, positive=True)
+    split_rvs.append(RandomVar("symbolic-support", (low, -epsilon)))
+    split_rvs.append(RandomVar("symbolic-support", (-epsilon, epsilon)))
+    split_rvs.append(RandomVar("symbolic-support", (epsilon, high)))
 
     cases = []
     for split_rv in split_rvs:

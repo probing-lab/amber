@@ -1,0 +1,4 @@
+stop = 0
+while stop < 1:
+    g = RV(gauss, 1, 1)
+    stop = stop + g @ 1/2; stop
