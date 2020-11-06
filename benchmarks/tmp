@@ -1,8 +1,0 @@
-
-y = 1
-z = 1
-while x > 0:
-    s = RV(gauss, 1, 2)
-    y = y + 1
-    z = z + 1
-    x = x + s*y*z

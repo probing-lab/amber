@@ -1,5 +1,5 @@
 
-x = 10
+x = RV(gauss, -10, 10)
 while x > 0:
     s = RV(gauss, 0, 1)
     x = x + s

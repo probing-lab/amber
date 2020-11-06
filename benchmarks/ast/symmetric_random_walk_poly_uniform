@@ -1,0 +1,6 @@
+x = RV(uniform, 1, 10)
+y = 0
+while x > 0:
+    g = RV(uniform, -1, 2)
+    y = y + g
+    x = x + (y**2 - y) @ 1/2; x - (y**2 - y)

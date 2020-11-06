@@ -134,6 +134,10 @@ def divide_monom_powers_by(monom: Expr, divisor):
 
 
 def separate_rvs_from_monom(monom: Expr, program: Program):
+    """
+    Given a monomial returns a list of all random variables (together with their powers)
+    it contains and the remaining monomial
+    """
     monom = monom.as_poly(monom.free_symbols)
     powers = monom.monoms()[0]
     vars_with_powers = [(v, p) for v, p in zip(monom.gens, powers)]
@@ -165,3 +169,27 @@ def amber_limit(expr, n):
         return expr
 
     return limit(expr, n, oo)
+
+
+def flatten_substitution_choices(subs_choices):
+    """
+    For a given dict {expr: (expr1, expr2)} returns a list of all possible substitution arising from choosing to subs
+    expr by expr1 or expr2.
+    """
+    subs_choices = subs_choices.copy()
+    if not subs_choices:
+        return [{}]
+
+    result = []
+    expr = next(iter(subs_choices.keys()))
+    choice1, choice2 = subs_choices.pop(expr)
+    remaining_choices_flat = flatten_substitution_choices(subs_choices)
+    for c in remaining_choices_flat:
+        c1 = c.copy()
+        c1[expr] = choice1
+        result.append(c1)
+        if choice1 != choice2:
+            c2 = c.copy()
+            c2[expr] = choice2
+            result.append(c2)
+    return result

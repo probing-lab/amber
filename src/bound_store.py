@@ -37,27 +37,44 @@ def set_program(p: Program):
     store = {}
 
 
-def __multiply_rvs_for_monom_bounds(rvs, monom_bounds: Bounds):
+def __multiply_rvs_for_monom_bounds(rvs, monom_bounds: Bounds, original_monom: Expr):
     """
     Given bounds for a monom x, computes bounds for the monom rvs * x by handling one random variable in rv at a time
     """
     global program
     n = symbols("n", integer=True, positive=True)
+    result_bounds = Bounds()
+    result_bounds.expression = original_monom.as_poly(program.variables)
+    result_bounds.lower = monom_bounds.lower
+    result_bounds.upper = monom_bounds.upper
+    result_bounds.maybe_positive = monom_bounds.maybe_positive
+    result_bounds.maybe_negative = monom_bounds.maybe_negative
     for rv, power in rvs:
         low, high = program.updates[rv].random_var.get_support(power)
         candidates = [
-            low * monom_bounds.lower,
-            high * monom_bounds.lower,
-            low * monom_bounds.upper,
-            high * monom_bounds.upper
+            low * result_bounds.lower,
+            high * result_bounds.lower,
+            low * result_bounds.upper,
+            high * result_bounds.upper
         ]
         rv_pos = high > 0
         rv_neg = low < 0
-        monom_bounds.upper = dominating(candidates, n)
-        monom_bounds.lower = dominated(candidates, n)
-        monom_bounds.maybe_positive = (rv_pos and monom_bounds.maybe_positive) or (rv_neg and monom_bounds.maybe_negative)
-        monom_bounds.maybe_negative = (rv_neg and monom_bounds.maybe_positive) or (rv_pos and monom_bounds.maybe_negative)
-    return monom_bounds
+        if not rv_pos.is_Boolean:
+            rv_pos = True
+        if not rv_neg.is_Boolean:
+            rv_neg = True
+
+        if nan in candidates:
+            result_bounds.upper = oo
+            result_bounds.lower = -oo
+        else:
+            result_bounds.upper = dominating(candidates, n)
+            result_bounds.lower = dominated(candidates, n)
+        result_bounds.maybe_positive = (rv_pos and result_bounds.maybe_positive) or (rv_neg and result_bounds.maybe_negative)
+        result_bounds.maybe_negative = (rv_neg and result_bounds.maybe_positive) or (rv_pos and result_bounds.maybe_negative)
+
+    store[result_bounds.expression] = result_bounds
+    return result_bounds
 
 
 def get_bounds_of_expr(expression: Expr) -> Bounds:
@@ -70,7 +87,10 @@ def get_bounds_of_expr(expression: Expr) -> Bounds:
     for monom in monoms:
         rvs, m = separate_rvs_from_monom(monom, program)
         m_bounds = __get_bounds_of_monom(m)
-        monom_bounds = __multiply_rvs_for_monom_bounds(rvs, m_bounds)
+        if rvs:
+            monom_bounds = __multiply_rvs_for_monom_bounds(rvs, m_bounds, monom)
+        else:
+            monom_bounds = m_bounds
         __replace_monom_in_expr_bounds(monom, monom_bounds, expression, expr_bounds)
 
     upper_candidates = __split_on_signums(expr_bounds.upper.as_expr())
@@ -211,8 +231,8 @@ def __compute_bounds_of_monom_recurrence(monom: Expr):
     n = symbols("n", integer=True, positive=True)
     branches = branch_store.get_branches_of_monom(monom)
     inhom_parts_bounds = [get_bounds_of_expr(b.inhom_part) for b in branches]
-    initial_value = branch_store.get_initial_value_of_monom(monom)
-    maybe_pos, maybe_neg = __get_monom_polarity(monom, inhom_parts_bounds, initial_value)
+    initial_polarity = branch_store.get_initial_polarity_of_monom(monom)
+    maybe_pos, maybe_neg = __get_monom_polarity(monom, inhom_parts_bounds, initial_polarity)
 
     inhom_parts_bounds_lower = [expand(b.lower.xreplace({n: n - 1})) for b in inhom_parts_bounds]
     inhom_parts_bounds_upper = [expand(b.upper.xreplace({n: n - 1})) for b in inhom_parts_bounds]
@@ -254,7 +274,7 @@ def __compute_bounds_of_monom_recurrence(monom: Expr):
     store[bounds.expression] = bounds
 
 
-def __get_monom_polarity(monom: Expr, inhom_parts_bounds: [Bounds], initial_value: Number) -> (bool, bool):
+def __get_monom_polarity(monom: Expr, inhom_parts_bounds: [Bounds], initial_polarity) -> (bool, bool):
     """
     Returns a rough but sound estimate of whether or not a given monomial can be positive and negative
     """
@@ -264,21 +284,8 @@ def __get_monom_polarity(monom: Expr, inhom_parts_bounds: [Bounds], initial_valu
     if all_powers_even:
         return True, False
 
-    # Otherwise estimate monom polarity by polarity of initial condition and polarity of inhomogenous parts
-    initial_pos = sympify(initial_value) > 0
-    if initial_pos.is_Relational:
-        initial_pos = True
-    else:
-        initial_pos = bool(initial_pos)
-
-    initial_neg = sympify(initial_value) < 0
-    if initial_neg.is_Relational:
-        initial_neg = True
-    else:
-        initial_neg = bool(initial_neg)
-
-    maybe_pos = initial_pos or any([b.maybe_positive for b in inhom_parts_bounds])
-    maybe_neg = initial_neg or any([b.maybe_negative for b in inhom_parts_bounds])
+    maybe_pos = initial_polarity[0] or any([b.maybe_positive for b in inhom_parts_bounds])
+    maybe_neg = initial_polarity[1] or any([b.maybe_negative for b in inhom_parts_bounds])
     return maybe_pos, maybe_neg
 
 

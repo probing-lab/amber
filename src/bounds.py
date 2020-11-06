@@ -14,6 +14,7 @@ def bounds(benchmark, expression):
     expression = sympify(expression)
     bounds = bound_store.get_bounds_of_expr(expression)
     log(f"Expression: {bounds.expression}", LOG_ESSENTIAL)
+
     log(f"Lower bound: {bounds.lower}", LOG_ESSENTIAL)
     log(f"Upper bound: {bounds.upper}", LOG_ESSENTIAL)
     log(f"Absolute upper bound: {bounds.absolute_upper}", LOG_ESSENTIAL)
