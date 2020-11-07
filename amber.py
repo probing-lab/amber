@@ -51,11 +51,23 @@ def main():
         if args.bounds:
             bounds(benchmark, args.bounds)
         else:
-            input_parser = InputParser()
-            input_parser.set_source(benchmark)
-            program = input_parser.parse_source()
+            program = None
+            try:
+                input_parser = InputParser()
+                input_parser.set_source(benchmark)
+                program = input_parser.parse_source()
+            except Exception as e:
+                print("Amber failed to parse source.")
+                print(e)
+                return
+
+            #try:
             result = decide_termination(program)
             result.print()
+            #except Exception as e:
+            #    print("Something went wrong while deciding termination.")
+            #    print(e)
+            #    return
 
 
 if __name__ == "__main__":
