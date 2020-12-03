@@ -87,7 +87,9 @@ def get_polarity(expression: Expr, n: Symbol):
     else:
         expr_1 = expression.subs({n: 1})
         pos = expr_1 > 0
+        pos = bool(pos) if pos.is_Boolean else True
         neg = expr_1 < 0
+        neg = bool(neg) if neg.is_Boolean else True
 
     return pos, neg
 

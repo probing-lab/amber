@@ -29,6 +29,7 @@ class Update:
             self.is_random_var = True
             dist, *params = map(str.strip, rv.group('params').split(','))
             params = list(map(sympify, params))
+            params = [make_symbols_positive(p, program_variables) for p in params]
             self.random_var = RandomVar(dist, params, var_name=str(self.var))
 
         # here: if not is_random_var == else
