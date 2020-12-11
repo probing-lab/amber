@@ -1,0 +1,8 @@
+
+x = RV(gauss, 0, 1)
+y = RV(gauss, 0, 1)
+while x**2 + y**2 < c:
+    s = RV(uniform, 1, 2)
+    t = RV(gauss, 0, 1)
+    x = x + s @ 1/2; x + 2*s
+    y = y + x + t**2 @ 1/2; y - x - t**2
