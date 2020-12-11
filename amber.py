@@ -61,13 +61,13 @@ def main():
                 print(e)
                 return
 
-            #try:
-            result = decide_termination(program)
-            result.print()
-            #except Exception as e:
-            #    print("Something went wrong while deciding termination.")
-            #    print(e)
-            #    return
+            try:
+                result = decide_termination(program)
+                result.print()
+            except Exception as e:
+                print("Something went wrong while deciding termination.")
+                print(e)
+                return
 
 
 if __name__ == "__main__":

@@ -1,6 +1,6 @@
 from typing import Iterable
 
-from diofant import sympify, Rational, Poly, prod, Symbol, symbols, oo, Max
+from diofant import sympify, Rational, Poly, prod, Symbol, symbols, oo, Max, polylog, factorial, product, gamma
 from scipy.stats import norm
 from math import sqrt
 import re
@@ -68,9 +68,29 @@ class RandomVar:
         self.var_name = var_name
 
     def get_support(self, k=1):
+        if self.distribution == 'bernoulli':
+            return sympify(0), sympify(1)
+
+        if self.distribution == 'geometric':
+            return sympify(1), oo
+
+        if self.distribution == 'exponential':
+            return sympify(0), oo
+
+        if self.distribution == 'beta':
+            return sympify(0), sympify(1)
+
         if self.distribution == 'uniform':
             l, u = self.parameters
             return interval_to_power(l, u, k)
+
+        if self.distribution == 'chi-squared':
+            l, u = self.parameters
+            return sympify(0), oo
+
+        if self.distribution == 'rayleigh':
+            l, u = self.parameters
+            return sympify(0), oo
 
         if self.distribution == 'symbolic-support':
             l, u = self.parameters
@@ -105,6 +125,33 @@ class RandomVar:
                 return mu**4 + 6*mu**2*sigma_squared + 3*sigma_squared**2
             moment = norm(loc=mu, scale=sqrt(sigma_squared)).moment(k)
             return Rational(moment)
+
+        if self.distribution == 'bernoulli':
+            return sympify(self.parameters[0])
+
+        if self.distribution == 'geometric':
+            p = sympify(self.parameters[0])
+            return p*polylog(-k, 1-p)
+
+        if self.distribution == 'exponential':
+            lambd = sympify(self.parameters[0])
+            return factorial(k) / (lambd ** k)
+
+        if self.distribution == 'beta':
+            alpha, beta = self.parameters
+            alpha = sympify(alpha)
+            beta = sympify(beta)
+            r = symbols('r')
+            return product((alpha + r) / (alpha + beta + r), (r, 0, k-1))
+
+        if self.distribution == 'chi-squared':
+            n = sympify(self.parameters[0])
+            i = symbols('i')
+            return product(n + 2*i, (i, 0, k - 1))
+
+        if self.distribution == 'rayleigh':
+            s = sympify(self.parameters[0])
+            return (2**(k / 2)) * (s**k) * gamma(1 + k/2)
 
         if self.distribution == 'unknown':
             return sympify(f"{self.var_name}(0)^{k}")
