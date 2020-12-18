@@ -1,4 +1,3 @@
-from diofant import *
 from .utils import *
 from enum import Enum, auto
 
@@ -6,6 +5,14 @@ from enum import Enum, auto
 class Direction(Enum):
     PosInf = auto()
     NegInf = auto()
+
+
+def dominating(fs: [Expr], n: Symbol):
+    return get_eventual_bound(fs, n, Direction.PosInf)
+
+
+def dominated(fs: [Expr], n: Symbol):
+    return get_eventual_bound(fs, n, Direction.NegInf)
 
 
 def get_eventual_bound(fs: [Expr], n: Symbol, direction: Direction = Direction.PosInf) -> Expr:
@@ -17,6 +24,10 @@ def get_eventual_bound(fs: [Expr], n: Symbol, direction: Direction = Direction.P
     for f in fs:
         if result is None:
             result = f
+        if direction == Direction.PosInf and result == oo:
+            return result
+        if direction == Direction.NegInf and result == -oo:
+            return result
         else:
             result = result if is_dominating_or_same(result, f, n, direction) else f
 
@@ -31,8 +42,8 @@ def is_dominating_or_same(f1: Expr, f2: Expr, n: Symbol, direction: Direction = 
     """
     upper = direction is Direction.PosInf
     lower = not upper
-    limit_f1 = limit(f1, n, oo)
-    limit_f2 = limit(f2, n, oo)
+    limit_f1 = amber_limit(f1, n)
+    limit_f2 = amber_limit(f2, n)
 
     # if both limits are constant
     if not limit_f1.is_infinite and not limit_f2.is_infinite:
@@ -53,11 +64,11 @@ def is_dominating_or_same(f1: Expr, f2: Expr, n: Symbol, direction: Direction = 
 
     if limit_f1 == oo:
         # if both functions go to +infinity, we have to investigate their fraction
-        return (upper and limit(f1 / f2, n, oo) > 0) or (lower and limit(f1 / f2, n, oo).is_finite)
+        return (upper and amber_limit(f1 / f2, n) > 0) or (lower and amber_limit(f1 / f2, n).is_finite)
 
     if limit_f1 == -oo:
         # if both functions go to -infinity, we have to investigate their fraction
-        return (upper and limit(f1 / f2, n, oo).is_finite) or (lower and limit(f1 / f2, n, oo) > 0)
+        return (upper and amber_limit(f1 / f2, n).is_finite) or (lower and amber_limit(f1 / f2, n) > 0)
 
 
 def simplify_asymptotically(expression: Expr, n: Symbol):
@@ -68,8 +79,8 @@ def simplify_asymptotically(expression: Expr, n: Symbol):
     if n not in expression.free_symbols:
         return expression
 
-    expression = simplify(expression)
-    limit_exp = limit(expression, n, oo)
+    expression = expand(expression)
+    limit_exp = amber_limit(expression, n)
     if limit_exp == 0:
         return expression
 

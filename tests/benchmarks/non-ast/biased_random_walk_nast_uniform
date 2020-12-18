@@ -1,0 +1,5 @@
+
+x = RV(uniform, 0, 10)
+while x > 0:
+    s = RV(uniform, -1, 2)
+    x = x + s

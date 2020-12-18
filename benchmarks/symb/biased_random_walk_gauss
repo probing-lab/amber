@@ -1,0 +1,5 @@
+
+x = RV(gauss, 5, 2)
+while x > 0:
+    s = RV(gauss, 0 - e, 1)
+    x = x + s

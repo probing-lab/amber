@@ -14,8 +14,7 @@ def is_invariant(expression: Expr, program: Program) -> bool:
     """
     Main function deciding whether expression <= 0 is eventually invariant
     """
-    expression = __strap_expression(expression)
-    n = symbols('n')
+    n = symbols("n", integer=True, positive=True)
     is_deterministic = len(expression.free_symbols.difference({n})) == 0
     if is_deterministic:
         return is_deterministic_invariant(expression)
@@ -27,7 +26,7 @@ def is_deterministic_invariant(expression: Expr) -> bool:
     """
     Checks whether an expression only containing n eventually stays <= 0
     """
-    n = symbols('n')
+    n = symbols("n", integer=True, positive=True)
     max_0 = get_max_0(expression, n)
     return expression.subs({n: max_0 + 1}) <= 0
 
@@ -39,16 +38,14 @@ def is_probabilistic_invariant(expression: Expr, program: Program) -> bool:
     answer = __is_probabilistic_invariant_via_bounds(expression)
     if answer.is_known():
         return answer.is_true()
-
-    answer = __is_probabilistic_invariant_via_z3(expression, program)
-    return answer.is_true()
+    raise NotImplemented()
 
 
 def __is_probabilistic_invariant_via_bounds(expression: Expr) -> Answer:
     """
     Tries to decide if expression <= 0 eventually becomes invariant via bounds.
     """
-    n = symbols('n')
+    n = symbols("n", integer=True, positive=True)
     bounds = bound_store.get_bounds_of_expr(expression)
     if is_dominating_or_same(bounds.upper, sympify(-1), n, direction=Direction.NegInf):
         return Answer.TRUE
@@ -57,12 +54,3 @@ def __is_probabilistic_invariant_via_bounds(expression: Expr) -> Answer:
         return Answer.FALSE
 
     return Answer.UNKNOWN
-
-
-def __is_probabilistic_invariant_via_z3(expression: Expr, program: Program) -> Answer:
-    raise NotImplementedError()
-
-
-def __strap_expression(expression: Expr) -> Expr:
-    expression = expression.args[0] if len(expression.args) > 0 else expression
-    return sympify(str(expression))

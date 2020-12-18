@@ -3,9 +3,9 @@ This is the module which handles the decision on what proof-rule to apply to a p
 to get something about its termination behavior. Then the proof-rule gets applied
 """
 
-from mora.core import Program
+from mora.core import Program, get_solution as get_expected, get_recurrence, reset_mora
 from mora.input import LOOP_GUARD_VAR
-from diofant import Expr, sympify, simplify, symbols
+from diofant import sympify, symbols, expand
 
 from . import branch_store, bound_store
 from .initial_state_rule import InitialStateRule
@@ -13,21 +13,20 @@ from .supermartingale_rule import SupermartingaleRule
 from .ranking_sm_rule import RankingSMRule
 from .repulsing_sm_rule import RepulsingSMRule
 from .rule import Result
-
-
-LOOP_GUARD_CHANGE = 'loop_guard_change^1'
+from .utils import LOG_ESSENTIAL, log
 
 
 def decide_termination(program: Program):
     """
     The main function, gathering all the information, deciding on and calling a proof-rule
     """
+    reset_mora()
     branch_store.set_program(program)
     bound_store.set_program(program)
-    lgc = prepare_loop_guard_change(program)
-    me_pos = create_martingale_expression(program, False)
-    me_neg = create_martingale_expression(program, True)
-    print("Martingale expression: ", me_pos.as_expr())
+    lgc = get_loop_guard_change(program)
+    me_pos = create_martingale_expression(program)
+    me_neg = expand(me_pos * (-1))
+    log(f"Martingale expression: {me_pos.as_expr()}", LOG_ESSENTIAL)
     rules = [
         InitialStateRule(lgc, me_pos, program),
         RankingSMRule(lgc, me_pos, program),
@@ -42,46 +41,27 @@ def decide_termination(program: Program):
             if result.all_known():
                 break
 
-    result.print()
+    return result
 
 
-def create_martingale_expression(program: Program, invert: bool):
+def create_martingale_expression(program: Program):
     """
     Creates the martingale expression E(M_{i+1} - M_i | F_i). Also deterministic variables get substituted
     with their representation in n.
     """
-    expected_guard = program.recurrences[symbols(LOOP_GUARD_VAR)]
-    expression = simplify(expected_guard - sympify(program.loop_guard))
-
-    if invert:
-        expression *= -1
-
-    expression = simplify(expression)
-    expression = substitute_deterministic_variables(expression, program)
-    return simplify(expression)
+    lg = symbols(LOOP_GUARD_VAR).as_poly(program.variables)
+    expected_guard = get_recurrence(program, lg)
+    lg = program.updates[symbols(LOOP_GUARD_VAR)].branches[0][0]
+    expression = expand(expected_guard - lg).as_expr()
+    return expand(expression)
 
 
-def prepare_loop_guard_change(program: Program):
+def get_loop_guard_change(program: Program):
     """
-    Prepares the loop-guard-change for analytic operations by considering the variable as real valued.
+    Returns E[LG_{n+1} - LG_{n}]
     """
-    loop_guard_change = program.moments[LOOP_GUARD_CHANGE]
-    n_int = symbols('n', integer=True)
-    n = symbols('n')
-    loop_guard_change = simplify(loop_guard_change.subs({n_int: n}))
-
-    return loop_guard_change
-
-
-def substitute_deterministic_variables(expr: Expr, program: Program):
-    """
-    Substitutes deterministic variables in a given expression with their representation in n.
-    """
-    n_int = symbols('n', integer=True)
-    n = symbols('n')
-    for symbol, update in program.updates.items():
-        if str(symbol) is not LOOP_GUARD_VAR and not update.is_probabilistic:
-            closed_form = program.moments[str(symbol) + "^1"].subs({n_int: n})
-            expr = expr.subs({symbol: closed_form})
-
-    return expr
+    n = symbols("n", integer=True, positive=True)
+    lg = sympify(LOOP_GUARD_VAR).as_poly(program.variables)
+    expected_lg = get_expected(program, lg)
+    expected_lg_plus = expected_lg.xreplace({n: n+1})
+    return expand(expected_lg_plus - expected_lg)

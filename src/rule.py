@@ -6,6 +6,7 @@ from abc import ABC, abstractmethod
 from diofant import Expr
 from mora.core import Program
 from .result import Result
+from .utils import log, LOG_ESSENTIAL
 
 
 class Rule(ABC):
@@ -31,13 +32,13 @@ class Witness(ABC):
 
     def print(self):
         headline = f"Witness for {self.kind}"
-        print(headline)
-        print("".join(["-" for n in range(len(headline))]))
+        log(headline, LOG_ESSENTIAL)
+        log("".join(["-" for n in range(len(headline))]), LOG_ESSENTIAL)
         key_length = max([len(k) for k in self.data.keys()]) + 2
 
         for key, value in self.data.items():
-            print(f"{key.ljust(key_length)} {value}")
+            log(f"{key.ljust(key_length)} {value}", LOG_ESSENTIAL)
 
-        print()
-        print("Explanation:")
-        print(self.explanation)
+        log("", LOG_ESSENTIAL)
+        log("Explanation:", LOG_ESSENTIAL)
+        log(self.explanation, LOG_ESSENTIAL)

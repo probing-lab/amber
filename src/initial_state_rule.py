@@ -4,6 +4,7 @@ because of the initial condition
 """
 from diofant import sympify
 
+from .expression import get_initial_polarity_for_expression
 from .rule import Rule, Result
 from .utils import Answer
 
@@ -14,11 +15,9 @@ class InitialStateRule(Rule):
 
     def run(self, result: Result):
         loop_guard = sympify(self.program.loop_guard)
-        for var, update in self.program.initial_values.items():
-            if hasattr(update, "branches"):
-                loop_guard = loop_guard.subs({var: update.branches[0][0]})
+        maybePos, _ = get_initial_polarity_for_expression(loop_guard, self.program)
 
-        if not loop_guard.is_number or bool(loop_guard > 0):
+        if maybePos:
             return result
 
         result.PAST = Answer.TRUE

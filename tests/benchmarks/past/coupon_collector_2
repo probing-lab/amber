@@ -1,0 +1,13 @@
+# The program models the coupon collector problem for N=2 coupons
+# In every iteration the collector gets one of the N different coupons
+# the loop stops when th collector has collected at least one coupon of every kind.
+
+coupon1 = 0
+c1 = 0
+coupon2 = 0
+c2 = 0
+while coupon1*coupon2 < 1:
+    c1 = 1 @ 1/2; 0
+    c2 = 1 - c1
+    coupon1 = coupon1 + c1
+    coupon2 = coupon2 + c2
