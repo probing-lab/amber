@@ -1,0 +1,10 @@
+# A program with linear behaviour
+# The program is PAST
+
+x = RV(gauss, 0, 1)
+y = RV(gauss, 0, 1)
+while x**2 + y**2 < 100:
+    s = RV(gauss, 1, 1)
+    t = RV(gauss, 0, 1)
+    x = x + s @ 1/2; x - s
+    y = y + (x + t) @ 1/2; y - (x + t)

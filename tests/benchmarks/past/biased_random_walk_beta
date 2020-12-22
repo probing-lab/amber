@@ -1,0 +1,5 @@
+
+x = 10
+while x > 0:
+    s = RV(beta, 1/2, 1/2)
+    x = x - s

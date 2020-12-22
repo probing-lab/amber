@@ -7,7 +7,7 @@ For the command line arguments run the script with "--help".
 import glob
 from argparse import ArgumentParser
 
-from mora.mora import mora, MoraException
+from mora.input import InputParser, set_log_level, LOG_NOTHING
 from src import decide_termination
 from src.bounds import bounds
 
@@ -42,6 +42,7 @@ parser.add_argument(
 
 def main():
     print(HEADER)
+    set_log_level(LOG_NOTHING)
 
     args = parser.parse_args()
     args.benchmarks = [b for bs in map(glob.glob, args.benchmarks) for b in bs]
@@ -50,11 +51,23 @@ def main():
         if args.bounds:
             bounds(benchmark, args.bounds)
         else:
+            program = None
             try:
-                program = mora(benchmark, goal=1)
-                decide_termination(program)
-            except MoraException as exception:
-                print("Something went wrong with Mora", exception)
+                input_parser = InputParser()
+                input_parser.set_source(benchmark)
+                program = input_parser.parse_source()
+            except Exception as e:
+                print("Amber failed to parse source.")
+                print(e)
+                return
+
+            try:
+                result = decide_termination(program)
+                result.print()
+            except Exception as e:
+                print("Something went wrong while deciding termination.")
+                print(e)
+                return
 
 
 if __name__ == "__main__":

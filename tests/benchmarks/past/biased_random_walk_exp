@@ -1,0 +1,8 @@
+# biased 1d random walk with exponential behavior
+# The program is PAST
+
+x = 10
+y = 1
+while x > 0:
+    y = 2*y
+    x = x + y @ 49/100; x - y

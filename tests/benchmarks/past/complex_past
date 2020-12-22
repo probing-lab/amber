@@ -1,0 +1,7 @@
+# The program is PAST
+
+y = 0.01
+x = 5
+while x > 0:
+    y = 2*y
+    x = x + 200*y**2 @ 1/2; x - y**3

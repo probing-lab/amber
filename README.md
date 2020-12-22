@@ -83,6 +83,14 @@ A more extensive help can be obtained by:
 python ./amber.py --help
 ```
 
+## Run Automatic Tests
+
+You can run all automatic tests with:
+```shell script
+python -m unittest
+```
+
+
 ## Writing your own Prob-solvable loop
 A Prob-solvable loop consist of initial assignments (one per line), a loop head `while P > Q:`
 and a loop body consisting of multiple variable updates (also one per line).

@@ -5,6 +5,12 @@ from diofant import *
 from mora.core import Program
 
 
+LOG_NOTHING = 0
+LOG_ESSENTIAL = 10
+LOG_VERBOSE = 20
+LOG_LEVEL = LOG_ESSENTIAL
+
+
 class Answer(Enum):
     FALSE = auto()
     TRUE = auto()
@@ -42,11 +48,12 @@ def get_max_0(expression: Expr, n: Symbol):
     """
     Returns the maximum positive 0 of a given expression or 0 if it does not exist
     """
+    n_real = symbols("n", real=True)
     try:
-        exp_zeros = solve(expression, n)
+        exp_zeros = solve(expression.xreplace({n: n_real}), n_real)
         if exp_zeros == [{}]:
             return 0
-        exp_zeros = [z[n] for z in exp_zeros if z[n].is_real]
+        exp_zeros = [z[n_real] for z in exp_zeros if z[n_real].is_real]
     except NotImplementedError:
         exp_zeros = []
     exp_zeros = [math.ceil(float(z)) for z in exp_zeros] + [0]
@@ -80,7 +87,9 @@ def get_polarity(expression: Expr, n: Symbol):
     else:
         expr_1 = expression.subs({n: 1})
         pos = expr_1 > 0
+        pos = bool(pos) if pos.is_Boolean else True
         neg = expr_1 < 0
+        neg = bool(neg) if neg.is_Boolean else True
 
     return pos, neg
 
@@ -114,3 +123,75 @@ def monom_is_deterministic(monom: Expr, program: Program):
     """
     variables_deterministic = [not program.updates[m].is_probabilistic for m in monom.free_symbols]
     return all(variables_deterministic)
+
+
+def divide_monom_powers_by(monom: Expr, divisor):
+    """
+    Returns the given monom where all powers a divided by divisor
+    """
+    monom = monom.as_poly(monom.free_symbols)
+    powers = monom.monoms()[0]
+    vars_with_powers = [v ** (p // divisor) for v, p in zip(monom.gens, powers)]
+    return prod(vars_with_powers)
+
+
+def separate_rvs_from_monom(monom: Expr, program: Program):
+    """
+    Given a monomial returns a list of all random variables (together with their powers)
+    it contains and the remaining monomial
+    """
+    monom = monom.as_poly(monom.free_symbols)
+    powers = monom.monoms()[0]
+    vars_with_powers = [(v, p) for v, p in zip(monom.gens, powers)]
+    m = sympify(1)
+    rvs = []
+    for v, p in vars_with_powers:
+        if program.updates[v].is_random_var and not hasattr(program.updates[v], "branches"):
+            rvs.append((v, p))
+        else:
+            m *= v ** p
+    return rvs, m
+
+
+def set_log_level(log_level):
+    global LOG_LEVEL
+    LOG_LEVEL = log_level
+
+
+def log(message, level):
+    """
+    Logs a message depending on the log level
+    """
+    if level <= LOG_LEVEL:
+        print(message)
+
+
+def amber_limit(expr, n):
+    if n not in expr.free_symbols:
+        return expr
+
+    return limit(expr, n, oo)
+
+
+def flatten_substitution_choices(subs_choices):
+    """
+    For a given dict {expr: (expr1, expr2)} returns a list of all possible substitution arising from choosing to subs
+    expr by expr1 or expr2.
+    """
+    subs_choices = subs_choices.copy()
+    if not subs_choices:
+        return [{}]
+
+    result = []
+    expr = next(iter(subs_choices.keys()))
+    choice1, choice2 = subs_choices.pop(expr)
+    remaining_choices_flat = flatten_substitution_choices(subs_choices)
+    for c in remaining_choices_flat:
+        c1 = c.copy()
+        c1[expr] = choice1
+        result.append(c1)
+        if choice1 != choice2:
+            c2 = c.copy()
+            c2[expr] = choice2
+            result.append(c2)
+    return result
