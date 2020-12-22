@@ -20,10 +20,10 @@ This is the easiest way to run Amber.
 docker run -ti marcelmoosbrugger/amber
 ```
 
-Now you can run amber on a given benchmark file with the following command:
+Now you can run Amber on a given benchmark file with the following command:
 
 ```shell script
-./amber --benchmarks benchmarks/past/2d_bounded_random_walk
+./amber benchmarks/past/2d_bounded_random_walk
 ```
 
 If you want to use your own benchmarks within the Docker container please see the Docker documentation on volumes ([docs.docker.com/storage/volumes/](https://docs.docker.com/storage/volumes/)).
