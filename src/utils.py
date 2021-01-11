@@ -2,8 +2,8 @@ import math
 from enum import Enum, auto
 from diofant import *
 
-from mora.core import Program
-
+from mora.core import Program, get_solution as get_expected
+from mora.input import LOOP_GUARD_VAR
 
 LOG_NOTHING = 0
 LOG_ESSENTIAL = 10
@@ -198,3 +198,14 @@ def flatten_substitution_choices(subs_choices):
             c2[expr] = choice2
             result.append(c2)
     return result
+
+
+def substitute_deterministic_variables(expr, program: Program):
+    """
+    Substitutes deterministic variables in a given expression with their representation in n.
+    """
+    for symbol, update in program.updates.items():
+        if str(symbol) is not LOOP_GUARD_VAR and not update.is_probabilistic:
+            closed_form = get_expected(program, symbol.as_poly(program.variables))
+            expr = expr.xreplace({symbol: closed_form})
+    return expr

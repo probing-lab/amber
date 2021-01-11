@@ -5,7 +5,7 @@ to get something about its termination behavior. Then the proof-rule gets applie
 
 from mora.core import Program, get_solution as get_expected, get_recurrence, reset_mora
 from mora.input import LOOP_GUARD_VAR
-from diofant import sympify, symbols, expand
+from diofant import sympify, symbols, expand, simplify
 
 from . import branch_store, bound_store
 from .initial_state_rule import InitialStateRule
@@ -13,7 +13,7 @@ from .supermartingale_rule import SupermartingaleRule
 from .ranking_sm_rule import RankingSMRule
 from .repulsing_sm_rule import RepulsingSMRule
 from .rule import Result
-from .utils import LOG_ESSENTIAL, log
+from .utils import LOG_ESSENTIAL, log, substitute_deterministic_variables
 
 
 def decide_termination(program: Program):
@@ -53,7 +53,8 @@ def create_martingale_expression(program: Program):
     expected_guard = get_recurrence(program, lg)
     lg = program.updates[symbols(LOOP_GUARD_VAR)].branches[0][0]
     expression = expand(expected_guard - lg).as_expr()
-    return expand(expression)
+    expression = substitute_deterministic_variables(expression, program)
+    return simplify(expression)
 
 
 def get_loop_guard_change(program: Program):

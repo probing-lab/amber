@@ -152,7 +152,6 @@ def split_expressions_on_rv(expressions: [Case], rv: Symbol, program: Program):
     return cases
 
 
-
 def combine_expressions(expressions: [Case]) -> [Case]:
     """
     In a given list of expressions with probabilities, combines equal expressions and their probabilities
