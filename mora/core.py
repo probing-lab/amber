@@ -8,6 +8,7 @@ class Program:
         self.name: str = ""
         self.source: str = ""
         self.loop_guard: str = ""
+        self.contains_rvs: bool = False
         self.variables: List[Symbol] = []
         self.initial_values: Dict[Symbol, Update] = {}
         self.updates: Dict[Symbol, Update] = {}

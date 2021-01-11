@@ -28,7 +28,8 @@ class RepulsingSMRule(Rule):
             return result
 
         branches = get_cases_for_expression(sympify(self.program.loop_guard), self.program)
-        branches = split_expressions_on_rvs(branches, self.program)
+        if self.program.contains_rvs:
+            branches = split_expressions_on_rvs(branches, self.program)
         branches = [simplify(branch - sympify(self.program.loop_guard)) for branch, _ in branches]
         bounds = [bound_store.get_bounds_of_expr(case) for case in branches]
 

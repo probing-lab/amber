@@ -6,6 +6,7 @@ For the command line arguments run the script with "--help".
 
 import glob
 from argparse import ArgumentParser
+import time
 
 from mora.input import InputParser, set_log_level, LOG_NOTHING
 from src import decide_termination
@@ -62,8 +63,10 @@ def main():
                 return
 
             try:
+                start = time.time()
                 result = decide_termination(program)
                 result.print()
+                print(f"Computation time: { round(time.time() - start, 4) }s")
             except Exception as e:
                 print("Something went wrong while deciding termination.")
                 print(e)

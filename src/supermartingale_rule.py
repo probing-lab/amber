@@ -28,7 +28,8 @@ class SupermartingaleRule(Rule):
 
         # Eventually one branch of LG_{i+1} - LG_i has to decrease more or equal than constant
         branches = get_cases_for_expression(sympify(self.program.loop_guard), self.program)
-        branches = split_expressions_on_rvs(branches, self.program)
+        if self.program.contains_rvs:
+            branches = split_expressions_on_rvs(branches, self.program)
         for branch, prob in branches:
             bounds = bound_store.get_bounds_of_expr(branch - sympify(self.program.loop_guard))
             n = symbols("n", integer=True, positive=True)

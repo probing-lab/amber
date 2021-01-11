@@ -98,6 +98,8 @@ class UpdateProgramVisitor(Visitor):
         self.program.variables.append(variable)
         update = Update(variable, expression, program_variables=self.program.variables)
         self.program.updates[variable] = update
+        if update.random_var:
+            self.program.contains_rvs = True
 
         contains_prob_variables = update.update_term(variable, 1).free_symbols & self.probabilistic_variables
         if not update.is_random_var and not contains_prob_variables and len(update.branches) == 1:

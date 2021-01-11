@@ -140,6 +140,9 @@ def separate_rvs_from_monom(monom: Expr, program: Program):
     Given a monomial returns a list of all random variables (together with their powers)
     it contains and the remaining monomial
     """
+    if not program.contains_rvs:
+        return [], monom
+
     monom = monom.as_poly(monom.free_symbols)
     powers = monom.monoms()[0]
     vars_with_powers = [(v, p) for v, p in zip(monom.gens, powers)]
