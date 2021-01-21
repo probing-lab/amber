@@ -1,0 +1,5 @@
+
+x = c
+while x > 0:
+    s = RV(laplace, 0 - e, d)
+    x = x + s**3

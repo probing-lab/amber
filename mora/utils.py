@@ -1,6 +1,7 @@
 from typing import Iterable
 
 from diofant import sympify, Rational, Poly, prod, Symbol, symbols, oo, Max, polylog, factorial, product, gamma
+from diofant.stats import Laplace, E
 from scipy.stats import norm
 from math import sqrt
 import re
@@ -99,6 +100,9 @@ class RandomVar:
         if self.distribution == 'gauss':
             return interval_to_power(-oo, oo, k)
 
+        if self.distribution == 'laplace':
+            return interval_to_power(-oo, oo, k)
+
     def compute_moment(self, k):
         if self.distribution == 'finite':
             return sum([p * (b ** k) for b, p in self.parameters])
@@ -155,6 +159,13 @@ class RandomVar:
 
         if self.distribution == 'unknown':
             return sympify(f"{self.var_name}(0)^{k}")
+
+        if self.distribution == 'laplace':
+            mu, b = self.parameters
+            mu = sympify(mu)
+            b = sympify(b)
+            x = Laplace("x", mu, b)
+            return E(x**k)
 
 
 def EV(expression):
