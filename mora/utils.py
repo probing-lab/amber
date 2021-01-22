@@ -1,7 +1,7 @@
 from typing import Iterable
 
-from diofant import sympify, Rational, Poly, prod, Symbol, symbols, oo, Max, polylog, factorial, product, gamma
-from diofant.stats import Laplace, E
+from diofant import sympify, Rational, Poly, prod, Symbol, symbols, oo, Max, Min, polylog, factorial, product, gamma
+from diofant.stats import Laplace, Binomial, Hypergeometric, E
 from scipy.stats import norm
 from math import sqrt
 import re
@@ -86,11 +86,9 @@ class RandomVar:
             return interval_to_power(l, u, k)
 
         if self.distribution == 'chi-squared':
-            l, u = self.parameters
             return sympify(0), oo
 
         if self.distribution == 'rayleigh':
-            l, u = self.parameters
             return sympify(0), oo
 
         if self.distribution == 'symbolic-support':
@@ -102,6 +100,14 @@ class RandomVar:
 
         if self.distribution == 'laplace':
             return interval_to_power(-oo, oo, k)
+
+        if self.distribution == 'binomial':
+            n, _ = self.parameters
+            return interval_to_power(0, n, k)
+
+        if self.distribution == 'hypergeometric':
+            N, K, n = self.parameters
+            return interval_to_power(Max(0, n + K - N), Min(n, K), k)
 
     def compute_moment(self, k):
         if self.distribution == 'finite':
@@ -165,6 +171,21 @@ class RandomVar:
             mu = sympify(mu)
             b = sympify(b)
             x = Laplace("x", mu, b)
+            return E(x**k)
+
+        if self.distribution == 'binomial':
+            n, p = self.parameters
+            n = sympify(n)
+            p = sympify(p)
+            x = Binomial("x", n, p)
+            return E(x**k)
+
+        if self.distribution == 'hypergeometric':
+            N, K, n = self.parameters
+            N = sympify(N)
+            K = sympify(K)
+            n = sympify(n)
+            x = Hypergeometric("x", N, K, n)
             return E(x**k)
 
 

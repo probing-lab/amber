@@ -1,0 +1,5 @@
+
+x = RV(binomial, 100, 1/2)
+while x > 0:
+    s = RV(binomial, 2, 1/2)
+    x = x - s
