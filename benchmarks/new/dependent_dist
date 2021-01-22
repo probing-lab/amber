@@ -1,0 +1,6 @@
+
+x = x0
+while x > 0:
+    g = RV(binomial, 50, 1/2)
+    l = RV(uniform, 0, 1+g)
+    x = x - l

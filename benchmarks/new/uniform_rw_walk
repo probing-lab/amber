@@ -1,0 +1,5 @@
+
+x = x0
+while x > 0:
+    step = RV(uniform, -3, 2)
+    x = x + step

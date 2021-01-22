@@ -1,0 +1,4 @@
+x = x0
+while x > 0:
+    s = RV(gauss, 1, c)
+    x = x + s @ 1/2; x - s

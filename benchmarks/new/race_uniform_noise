@@ -1,0 +1,11 @@
+# Race between a tortoise and the hare
+# The tortoise always advances by 1 whereas the step size of the hare is drawn from a probability distribution
+
+hare = 0
+tortoise = 30
+while tortoise > hare:
+    noise1 = RV(uniform, -1, 1)
+    noise2 = RV(uniform, -1, 1)
+    step = RV(uniform, 0, 10)
+    tortoise = tortoise + 1 + noise1
+    hare = hare + step + noise2

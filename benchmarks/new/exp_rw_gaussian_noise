@@ -1,0 +1,6 @@
+x = 10
+y = 1
+while x > 0:
+    n = RV(gauss, 0, 1)
+    y = 2*y
+    x = x + y + n @ 49/100; x - y - n

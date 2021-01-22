@@ -1,0 +1,5 @@
+
+x = x0
+while x > 0:
+    n = RV(laplace, 0, c)
+    x = x - n

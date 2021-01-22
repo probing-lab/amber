@@ -1,0 +1,4 @@
+x = x0
+while x > 0:
+    noise = RV(uniform, -1/2, 1/2)
+    x = x + 1 + noise @ 1/2; x
