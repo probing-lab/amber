@@ -1,0 +1,4 @@
+x = x0
+while x > 0:
+    step = RV(hypergeometric, 500, 50, 100)
+    x = x + step
