@@ -1,0 +1,6 @@
+# Symmetric 1d random walk
+# The program is AST
+
+x = 10
+while x > 0:
+    x = x + 10 @ 1/2; x - 10

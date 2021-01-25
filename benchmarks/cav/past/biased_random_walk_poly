@@ -1,0 +1,8 @@
+# biased 1d random walk with polynomial behavior
+# The program is PAST
+
+x = 10
+y = 0
+while x > 0:
+    y = y + 1
+    x = x + (y**2 - y) @ 49/100; x - (y**2 - y)

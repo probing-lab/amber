@@ -1,0 +1,22 @@
+# Dueling cowboys
+#
+# turn := 0;
+# continue := 1;
+# while (continue >= 1) {
+#  if (turn = 0) {
+#     (continue := 0 [ a ] turn := 1);
+#   } else {
+#    (continue := 0 [ b ] turn := 0);
+#  }
+# }
+#
+# The program is PAST
+#
+
+a_win = 0
+b_win = 0
+c = 1
+while c > 0:
+    a_win = 1         @ 1/2; 0
+    b_win = 1 - a_win @ 1/2; 0
+    c = c - a_win - b_win
