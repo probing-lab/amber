@@ -1,3 +1,3 @@
-scipy
-diofant
-lark-parser
+scipy==1.5.0
+diofant==0.11.0
+lark-parser==0.11.0
